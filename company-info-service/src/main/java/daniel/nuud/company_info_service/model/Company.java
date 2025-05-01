@@ -16,6 +16,14 @@ public class Company {
 
     @Id
     private String ticker;
-
+    private String description;
+    private String name;
+    private String homepageUrl;
+    private String primaryExchange;
+    private Long marketCap;
+    private String city;
+    private String address1;
+    private String iconUrl;
+    private String logoUrl;
 
 }
