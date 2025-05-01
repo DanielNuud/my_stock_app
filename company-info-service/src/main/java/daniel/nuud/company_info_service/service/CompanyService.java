@@ -5,6 +5,7 @@ import daniel.nuud.company_info_service.dto.Ticket;
 import daniel.nuud.company_info_service.model.Company;
 import daniel.nuud.company_info_service.repository.CompanyRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -15,10 +16,12 @@ public class CompanyService {
 
     private final WebClient webClient;
     private final CompanyRepository companyRepository;
+    @Value("${polygon.api.key}")
+    private String apiKey;
 
     public Mono<Company> fetchAndSaveCompany(String ticker) {
         return webClient.get()
-                .uri("/v3/reference/tickers/{ticker}?apiKey={apiKey}", ticker)
+                .uri("/v3/reference/tickers/{ticker}?apiKey={apiKey}", ticker, apiKey)
                 .retrieve()
                 .bodyToMono(ApiResponse.class)
                 .flatMap(response -> {
@@ -27,15 +30,14 @@ public class CompanyService {
 
                         Company company = new Company();
 
-                        company.setCity(response.getResults().getAddress().getCity());
-                        company.setDescription(response.getResults().getDescription());
-                        company.setName(response.getResults().getName());
-                        company.setIconUrl(response.getResults().getBranding().getIconUrl());
-                        company.setLogoUrl(response.getResults().getBranding().getLogoUrl());
-                        company.setTicker(response.getResults().getTicker());
-                        company.setAddress1(response.getResults().getAddress().getAddress1());
-                        company.setMarketCap(response.getResults().getMarketCap());
-                        company.setPrimaryExchange(response.getResults().getPrimaryExchange());
+                        company.setCity(data.getAddress().getCity());
+                        company.setName(data.getName());
+                        company.setIconUrl(data.getBranding().getIconUrl());
+                        company.setLogoUrl(data.getBranding().getLogoUrl());
+                        company.setTicker(data.getTicker());
+                        company.setAddress1(data.getAddress().getAddress1());
+                        company.setMarketCap(data.getMarketCap());
+                        company.setPrimaryExchange(data.getPrimaryExchange());
 
                         return Mono.fromCallable(() -> companyRepository.save(company));
                     } else {
