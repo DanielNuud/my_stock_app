@@ -26,4 +26,6 @@ public class Company {
     private String iconUrl;
     private String logoUrl;
 
+    private String status;
+
 }
