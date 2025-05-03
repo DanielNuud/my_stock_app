@@ -1,18 +1,14 @@
 package daniel.nuud.company_info_service.model;
 
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import org.springframework.data.annotation.Id;
 
-@Entity
-@Table(name = "companies")
-@AllArgsConstructor
+import java.io.Serializable;
+
+@Data
 @NoArgsConstructor
-@Getter
-@Setter
-public class Company {
+@AllArgsConstructor
+public class Company implements Serializable {
 
     @Id
     private String ticker;
