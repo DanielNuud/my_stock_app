@@ -23,4 +23,9 @@ public class ApiArticle {
     private String author;
 
     private List<String> tickers;
+
+    @JsonProperty("published_utc")
+    private String publishedUtc;
+
+    private Publisher publisher;
 }

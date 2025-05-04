@@ -63,12 +63,27 @@ public class NewsService {
                     article.setArticleUrl(apiArt.getArticleUrl());
                     article.setImageUrl(apiArt.getImageUrl());
                     article.setTickers(new ArrayList<>(apiArt.getTickers()));
+                    article.setPublishedUtc(apiArt.getPublishedUtc());
+                    article.setPublisherName(apiArt.getPublisher().getName());
+                    article.setPublisherLogoUrl(apiArt.getPublisher().getLogoUrl());
+                    article.setPublisherHomepageUrl(apiArt.getPublisher().getHomepageUrl());
+                    article.setPublisherFaviconUrl(apiArt.getPublisher().getFavicon());
+
                     return article;
                 })
                 .toList();
 
 
         return newsRepository.saveAll(articles);
+    }
+
+    public List<Article> getNewsByTicker (String ticker) {
+        return newsRepository.findAllByTickersContaining(ticker)
+                .orElseThrow(() -> new ResourceNotFoundException("No news found for ticker " + ticker));
+    }
+
+    public List<Article> getAllNews() {
+        return newsRepository.findAll();
     }
 
 }

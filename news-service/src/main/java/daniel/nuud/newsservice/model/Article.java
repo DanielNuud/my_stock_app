@@ -26,6 +26,12 @@ public class Article {
     private String articleUrl;
     private String imageUrl;
 
+    private String publishedUtc;
+    private String publisherName;
+    private String publisherLogoUrl;
+    private String publisherHomepageUrl;
+    private String publisherFaviconUrl;
+
     @ElementCollection(fetch = FetchType.LAZY)
     @Column(name = "ticker")
     private List<String> tickers = new ArrayList<>();
