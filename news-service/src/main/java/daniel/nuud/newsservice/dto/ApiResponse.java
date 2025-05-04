@@ -1,6 +1,12 @@
 package daniel.nuud.newsservice.dto;
 
+import lombok.Data;
+import java.util.List;
+
+@Data
 public class ApiResponse {
-    private String status;
-    private Article results;
+    private int count;
+    private String next_url;
+    private String request_id;
+    private List<ApiArticle> results;
 }
