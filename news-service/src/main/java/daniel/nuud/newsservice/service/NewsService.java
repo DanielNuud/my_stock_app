@@ -12,6 +12,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class NewsService {
@@ -41,25 +43,32 @@ public class NewsService {
             throw new ResourceNotFoundException("No news found for ticker " + ticker);
         }
 
-        List<Article> articles = new ArrayList<>();
+        List<String> ids = response.getResults().stream()
+                .map(ApiArticle::getId)
+                .toList();
 
-        for (ApiArticle apiArt : response.getResults()) {
-            Article article = new Article();
+        Set<String> existingIds = newsRepository.findAllById(ids).stream()
+                .map(Article::getId)
+                .collect(Collectors.toSet());
 
-            article.setId(apiArt.getId());
-            article.setTitle(apiArt.getTitle());
-            article.setAuthor(apiArt.getAuthor());
-            article.setDescription(apiArt.getDescription());
-            article.setArticleUrl(apiArt.getArticleUrl());
-            article.setImageUrl(apiArt.getImageUrl());
-            article.setTickers(new ArrayList<>(apiArt.getTickers()));
+        List<Article> articles = response.getResults().stream()
+                .filter(apiArt -> !existingIds.contains(apiArt.getId()))
+                .map(apiArt -> {
+                    Article article = new Article();
 
-            articles.add(article);
-        }
+                    article.setId(apiArt.getId());
+                    article.setTitle(apiArt.getTitle());
+                    article.setAuthor(apiArt.getAuthor());
+                    article.setDescription(apiArt.getDescription());
+                    article.setArticleUrl(apiArt.getArticleUrl());
+                    article.setImageUrl(apiArt.getImageUrl());
+                    article.setTickers(new ArrayList<>(apiArt.getTickers()));
+                    return article;
+                })
+                .toList();
 
-        newsRepository.saveAll(articles);
 
-        return articles;
+        return newsRepository.saveAll(articles);
     }
 
 }
