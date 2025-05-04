@@ -19,8 +19,21 @@ public class NewsController {
     private NewsService newsService;
 
     @GetMapping("/{ticker}")
-    public ResponseEntity<List<Article>> getNews(@PathVariable String ticker) {
+    public ResponseEntity<List<Article>> fetchNews(@PathVariable String ticker) {
         var articles = newsService.fetchAndSaveNews(ticker);
         return ResponseEntity.ok(articles);
     }
+
+    @GetMapping("/{ticker}/info")
+    public ResponseEntity<List<Article>> getNews(@PathVariable String ticker) {
+        var articles = newsService.getNewsByTicker(ticker);
+        return ResponseEntity.ok(articles);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Article>> getAllNews() {
+        var articles = newsService.getAllNews();
+        return ResponseEntity.ok(articles);
+    }
+
 }
