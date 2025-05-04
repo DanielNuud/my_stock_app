@@ -8,7 +8,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class Article {
+public class ApiArticle {
 
     @JsonProperty("article_url")
     private String articleUrl;
