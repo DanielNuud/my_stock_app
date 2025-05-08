@@ -1,3 +1,12 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: on
+
+server:
+  port: 8082
+
 polygon:
   api:
     key: V4_aPjfLf3uRm1v8EO3SRFvJfOM4WtDp
