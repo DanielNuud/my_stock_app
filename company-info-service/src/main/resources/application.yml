@@ -6,6 +6,9 @@ spring:
     cache:
       type: redis
 
+
 polygon:
   api:
     key: V4_aPjfLf3uRm1v8EO3SRFvJfOM4WtDp
+server:
+  port: 8081
