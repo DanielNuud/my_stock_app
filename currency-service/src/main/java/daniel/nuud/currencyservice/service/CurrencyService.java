@@ -28,9 +28,15 @@ public class CurrencyService {
                 .block();
 
         if (response == null || response.getRates() == null) {
-            throw new ResourceNotFoundException("Currency rates not found");
+            throw new ResourceNotFoundException("Currency \"" + currency + "\" or currency rates not found");
         }
 
        return response.getRates();
+    }
+
+    public Double convert(String fromCurrency, String toCurrency, Double amount) {
+        Map<String, String> rates = getCurrencyRates(fromCurrency);
+        Double rateTo = Double.parseDouble(rates.get(toCurrency));
+        return amount * rateTo;
     }
 }
