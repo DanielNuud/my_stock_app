@@ -29,7 +29,7 @@ public class CompanyService {
     public Company fetchCompany(String ticker) {
         log.info(">>> fetchCompany called for {}", ticker);
         ApiResponse response = webClient.get()
-                .uri("/v3/reference/tickers/{ticker}?apiKey={apiKey}", ticker, apiKey)
+                .uri("/v3/reference/tickers/{ticker}?apiKey={apiKey}", ticker.toUpperCase(), apiKey)
                 .retrieve()
                 .bodyToMono(ApiResponse.class)
                 .block();
