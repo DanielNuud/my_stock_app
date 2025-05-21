@@ -1,3 +1,5 @@
 freecurrency:
   api:
     key: fca_live_hs0yPrOObSsKEWaBJoMXsAeK398j4L9L5pl84AY1
+server:
+  port: 8083
