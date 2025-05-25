@@ -12,3 +12,17 @@ server:
 polygon:
   api:
     key: V4_aPjfLf3uRm1v8EO3SRFvJfOM4WtDp
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, prometheus
+  metrics:
+    distribution:
+      percentiles-histogram:
+        "[http.server.requests]": true
+  prometheus:
+    metrics:
+      export:
+        enabled: true

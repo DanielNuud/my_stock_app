@@ -3,3 +3,17 @@ freecurrency:
     key: fca_live_hs0yPrOObSsKEWaBJoMXsAeK398j4L9L5pl84AY1
 server:
   port: 8083
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, prometheus
+  metrics:
+    distribution:
+      percentiles-histogram:
+        "[http.server.requests]": true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
