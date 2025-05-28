@@ -7,7 +7,8 @@ spring:
       type: redis
 
 server:
-  port: 8081
+  port: 8080
+  address: 0.0.0.0
 
 polygon:
   api:

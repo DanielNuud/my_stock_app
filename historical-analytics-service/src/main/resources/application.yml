@@ -3,4 +3,5 @@ polygon:
     key: V4_aPjfLf3uRm1v8EO3SRFvJfOM4WtDp
 
 server:
-  port: 8084
+  port: 8080
+  address: 0.0.0.0

@@ -13,6 +13,10 @@ java {
     }
 }
 
+bootJar {
+    archiveFileName = 'currency-service.jar'
+}
+
 configurations {
     compileOnly {
         extendsFrom annotationProcessor

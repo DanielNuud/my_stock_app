@@ -1,6 +1,28 @@
 version: '3.8'
 
 services:
+
+  company-info-service:
+    build:
+      context: ./company-info-service
+    ports:
+      - "8081:8080"
+    container_name: company-info-service
+
+  currency-service:
+      build:
+        context: ./currency-service
+      ports:
+        - "8082:8080"
+      container_name: currency-service
+
+  news-service:
+      build:
+        context: ./news-service
+      ports:
+        - "8083:8080"
+      container_name: news-service
+
   prometheus:
     image: prom/prometheus
     container_name: prometheus

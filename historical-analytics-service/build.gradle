@@ -13,6 +13,10 @@ java {
     }
 }
 
+bootJar {
+    archiveFileName = 'historical-analytics-service.jar'
+}
+
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
