@@ -6,21 +6,21 @@ spring:
     gateway:
       routes:
         - id: company-service
-          uri: http://localhost:8081
+          uri: http://company-info-service:8081
           predicates:
             - Path=/api/companies/**
 
         - id: news-service
-          uri: http://localhost:8082
+          uri: http://news-service:8082
           predicates:
             - Path=/api/news/**
 
         - id: currency-service
-          uri: http://localhost:8083
+          uri: http://currency-service:8083
           predicates:
             - Path=/api/currency/**
 
         - id: historical-analytics-service
-          uri: http://localhost:8084
+          uri: http://historical-analytics-service:8084
           predicates:
             - Path=/api/historical/**

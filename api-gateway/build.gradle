@@ -19,6 +19,10 @@ configurations {
     }
 }
 
+bootJar {
+    archiveFileName = 'api-gateway.jar'
+}
+
 repositories {
     mavenCentral()
 }

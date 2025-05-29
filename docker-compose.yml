@@ -2,26 +2,35 @@ version: '3.8'
 
 services:
 
-  company-info-service:
-    build:
-      context: ./company-info-service
+  api-gateway:
+    build: ./api-gateway
     ports:
-      - "8081:8080"
-    container_name: company-info-service
+      - "8080:8080"
+    depends_on:
+      - company-info-service
+      - news-service
+      - currency-service
+      - historical-analytics-service
 
-  currency-service:
-      build:
-        context: ./currency-service
+  company-info-service:
+      build: ./company-info-service
       ports:
-        - "8082:8080"
-      container_name: currency-service
+        - "8081:8081"
 
   news-service:
-      build:
-        context: ./news-service
+      build: ./news-service
       ports:
-        - "8083:8080"
-      container_name: news-service
+        - "8082:8082"
+
+  currency-service:
+      build: ./currency-service
+      ports:
+        - "8083:8083"
+
+  historical-analytics-service:
+      build: ./historical-analytics-service
+      ports:
+        - "8084:8084"
 
   prometheus:
     image: prom/prometheus
