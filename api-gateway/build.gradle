@@ -13,6 +13,10 @@ java {
     }
 }
 
+bootJar {
+    archiveFileName = 'api-gateway.jar'
+}
+
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
