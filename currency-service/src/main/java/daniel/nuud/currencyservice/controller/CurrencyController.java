@@ -1,19 +1,17 @@
 package daniel.nuud.currencyservice.controller;
 
 import daniel.nuud.currencyservice.service.CurrencyService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/currency")
+@RequiredArgsConstructor
 public class CurrencyController {
 
-    private CurrencyService currencyService;
-
-    public CurrencyController(CurrencyService currencyService) {
-        this.currencyService = currencyService;
-    }
+    private final CurrencyService currencyService;
 
     @GetMapping("/{currency}")
     public Map<String, String> getCurrency(@PathVariable String currency) {

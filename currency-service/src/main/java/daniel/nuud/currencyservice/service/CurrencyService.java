@@ -2,6 +2,7 @@ package daniel.nuud.currencyservice.service;
 
 import daniel.nuud.currencyservice.dto.RateResponse;
 import daniel.nuud.currencyservice.exception.ResourceNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
@@ -11,10 +12,10 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class CurrencyService {
 
-    @Autowired
-    private WebClient webClient;
+    private final WebClient webClient;
 
     @Value("${freecurrency.api.key}")
     private String apiKey;
