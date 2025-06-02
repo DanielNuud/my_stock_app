@@ -1,12 +1,12 @@
 package daniel.nuud.company_info_service.service;
 
-import daniel.nuud.company_info_service.dto.ApiResponse;
-import daniel.nuud.company_info_service.dto.Ticket;
+import daniel.nuud.company_info_service.dto.api.ApiResponse;
+import daniel.nuud.company_info_service.dto.api.Ticket;
 import daniel.nuud.company_info_service.exception.ResourceNotFoundException;
 import daniel.nuud.company_info_service.model.Company;
 import daniel.nuud.company_info_service.repository.CompanyRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -14,23 +14,19 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class CompanyService {
 
     private final WebClient webClient;
 
-    @Autowired
-    public CompanyService(WebClient webClient) {
-        this.webClient = webClient;
-    }
+    private final CompanyRepository companyRepository;
 
     @Value("${polygon.api.key}")
     private String apiKey;
 
-    @Autowired
-    private CompanyRepository companyRepository;
-
     @Cacheable(value = "Company", key = "#ticker.toUpperCase()")
     public Company fetchCompany(String ticker) {
+
         log.info(">>> fetchCompany called for {}", ticker);
 
         Company existingCompany = companyRepository.findByTickerIgnoreCase(ticker);

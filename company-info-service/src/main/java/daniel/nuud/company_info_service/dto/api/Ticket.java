@@ -1,4 +1,4 @@
-package daniel.nuud.company_info_service.dto;
+package daniel.nuud.company_info_service.dto.api;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
