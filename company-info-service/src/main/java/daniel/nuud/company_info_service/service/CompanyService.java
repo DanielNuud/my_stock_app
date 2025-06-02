@@ -4,6 +4,7 @@ import daniel.nuud.company_info_service.dto.ApiResponse;
 import daniel.nuud.company_info_service.dto.Ticket;
 import daniel.nuud.company_info_service.exception.ResourceNotFoundException;
 import daniel.nuud.company_info_service.model.Company;
+import daniel.nuud.company_info_service.repository.CompanyRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,9 +26,20 @@ public class CompanyService {
     @Value("${polygon.api.key}")
     private String apiKey;
 
-    @Cacheable(value = "Company", key = "#ticker")
+    @Autowired
+    private CompanyRepository companyRepository;
+
+    @Cacheable(value = "Company", key = "#ticker.toUpperCase()")
     public Company fetchCompany(String ticker) {
         log.info(">>> fetchCompany called for {}", ticker);
+
+        Company existingCompany = companyRepository.findByTickerIgnoreCase(ticker);
+
+        if (existingCompany != null) {
+            log.info("Company {} found in database", ticker);
+            return existingCompany;
+        }
+
         ApiResponse response = webClient.get()
                 .uri("/v3/reference/tickers/{ticker}?apiKey={apiKey}", ticker.toUpperCase(), apiKey)
                 .retrieve()
@@ -57,6 +69,8 @@ public class CompanyService {
         company.setMarketCap(data.getMarketCap());
         company.setPrimaryExchange(data.getPrimaryExchange());
         company.setStatus(response.getStatus());
+
+        companyRepository.save(company);
 
         return company;
     }
