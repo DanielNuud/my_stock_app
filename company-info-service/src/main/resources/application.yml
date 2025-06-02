@@ -1,12 +1,17 @@
 spring:
-  data:
-    redis:
-      host: redis
-      port: 6379
-  cache:
-    type: redis
-    redis:
-      time-to-live: 600000
+  datasource:
+    url: jdbc:postgresql://localhost:5432/company_info_db
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
 
 
 server:

@@ -1,17 +1,25 @@
 package daniel.nuud.company_info_service.model;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.*;
-import org.springframework.data.annotation.Id;
 
 import java.io.Serializable;
 
-@Data
+@Entity
+@Table(name = "companies")
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Company implements Serializable {
 
     @Id
+    @Column(name = "ticker", nullable = false, unique = true)
     private String ticker;
+
     private String description;
     private String name;
     private String homepageUrl;
