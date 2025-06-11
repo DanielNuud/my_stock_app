@@ -5,6 +5,7 @@ import daniel.nuud.newsservice.dto.ApiResponse;
 import daniel.nuud.newsservice.exception.ResourceNotFoundException;
 import daniel.nuud.newsservice.model.Article;
 import daniel.nuud.newsservice.repository.NewsRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -16,28 +17,18 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class NewsService {
 
     private final WebClient webClient;
 
     private final NewsRepository newsRepository;
 
-    @Autowired
-    public NewsService(WebClient webClient, NewsRepository newsRepository) {
-        this.webClient = webClient;
-        this.newsRepository = newsRepository;
-    }
-
     @Value("${polygon.api.key}")
     private String apiKey;
 
     public List<Article> fetchAndSaveNews(String ticker) {
-        ApiResponse response = webClient.get()
-                .uri("/v2/reference/news?ticker={ticker}&order=asc&limit=10&sort=published_utc&apiKey={apiKey}",
-                        ticker, apiKey)
-                .retrieve()
-                .bodyToMono(ApiResponse.class)
-                .block();
+        ApiResponse response = getApiResponse(ticker);
 
         if (response == null || response.getResults() == null) {
             throw new ResourceNotFoundException("No news found for ticker " + ticker);
@@ -74,7 +65,21 @@ public class NewsService {
                 .toList();
 
 
-        return newsRepository.saveAll(articles);
+        if (!articles.isEmpty()) {
+            return newsRepository.saveAll(articles);
+        }
+
+        return List.of();
+    }
+
+    public ApiResponse getApiResponse(String ticker) {
+        ApiResponse response = webClient.get()
+                .uri("/v2/reference/news?ticker={ticker}&order=asc&limit=10&sort=published_utc&apiKey={apiKey}",
+                        ticker, apiKey)
+                .retrieve()
+                .bodyToMono(ApiResponse.class)
+                .block();
+        return response;
     }
 
     public List<Article> getNewsByTicker (String ticker) {
