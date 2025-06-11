@@ -137,8 +137,42 @@ class NewsServiceTest {
         var result = spyService.fetchAndSaveNews(ticker);
         assertTrue(result.isEmpty());
         verify(newsRepository, never()).saveAll(anyList());
+
     }
 
+    @Test
+    @DisplayName("fetchNews: saves only new article when one already exists in DB")
+    void fetchNews_savesOnlyNewArticleWhenOneAlreadyExistsInDB() {
 
+        ApiArticle article1 = getApiArticle();
+        ApiArticle article2 = new ApiArticle();
+        article2.setId("article-456");
+        article2.setTitle("Another Apple Stock Rises After Strong Earnings");
+        article2.setDescription("Apple reports record revenue in Q3 2025.");
+        article2.setTickers(List.of("AAPL"));
 
+        Publisher publisher = new Publisher();
+        publisher.setName("Washington");
+        publisher.setFavicon("https://example.com/favicon.ico");
+        publisher.setHomepageUrl("https://washington.com");
+        publisher.setLogoUrl("https://example.com/logo.png");
+
+        article2.setPublisher(publisher);
+
+        ApiResponse resp = new ApiResponse();
+        resp.setResults(List.of(article1, article2));
+
+        Article existingArticle = new Article();
+        existingArticle.setId("article-123");
+
+        when(newsRepository.findAllById(List.of("article-123", "article-456"))).thenReturn(List.of(existingArticle));
+        when(newsRepository.saveAll(anyList()))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        var spyService = spy(newsService);
+        doReturn(resp).when(spyService).getApiResponse("AAPL");
+
+        var result = spyService.fetchAndSaveNews("AAPL");
+        assertEquals(1, result.size());
+    }
 }
