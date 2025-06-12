@@ -36,7 +36,7 @@ class NewsServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        spyService = spy(newsService); // теперь зависимости уже внедрены
+        spyService = spy(newsService);
     }
 
     @Test
