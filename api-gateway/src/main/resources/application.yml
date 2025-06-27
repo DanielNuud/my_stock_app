@@ -24,3 +24,8 @@ spring:
           uri: http://historical-analytics-service:8080
           predicates:
             - Path=/api/historical/**
+
+        - id: stocks-service
+          uri: http://stocks-service:8080
+          predicates:
+            - Path=/api/stocks/**
