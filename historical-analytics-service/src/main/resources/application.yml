@@ -1,6 +1,6 @@
 polygon:
   api:
-    key: V4_aPjfLf3uRm1v8EO3SRFvJfOM4WtDp
+    key: ${POLYGON_API_KEY}
 
 server:
   port: 8080
