@@ -49,6 +49,11 @@ services:
     networks:
       - monitoring
 
+  stocks-service:
+    build: ./stocks_service
+    ports:
+      - "8085:8080"
+
   grafana:
     image: grafana/grafana
     container_name: grafana
