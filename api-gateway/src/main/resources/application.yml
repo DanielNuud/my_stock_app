@@ -29,3 +29,12 @@ spring:
           uri: http://stocks-service:8080
           predicates:
             - Path=/api/stocks/**
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    gateway:
+      enabled: true

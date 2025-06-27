@@ -40,11 +40,11 @@ services:
         - "8084:8080"
 
   stocks-service:
-    build: ./stocks-service
-    ports:
-      - "8085:8080"
-    environment:
-      - POLYGON_API_KEY=V4_aPjfLf3uRm1v8EO3SRFvJfOM4WtDp
+      build: ./stocks-service
+      ports:
+        - "8085:8080"
+      environment:
+        - POLYGON_API_KEY=V4_aPjfLf3uRm1v8EO3SRFvJfOM4WtDp
 
   prometheus:
     image: prom/prometheus
