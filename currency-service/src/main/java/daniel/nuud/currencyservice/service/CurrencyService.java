@@ -3,7 +3,6 @@ package daniel.nuud.currencyservice.service;
 import daniel.nuud.currencyservice.dto.RateResponse;
 import daniel.nuud.currencyservice.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
