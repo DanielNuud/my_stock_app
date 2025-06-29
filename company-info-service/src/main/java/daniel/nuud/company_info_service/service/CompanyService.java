@@ -60,8 +60,11 @@ public class CompanyService {
         company.setHomepageUrl(data.getHomepageUrl());
         company.setCity(data.getAddress().getCity());
         company.setAddress1(data.getAddress().getAddress1());
-        company.setLogoUrl(data.getBranding().getLogoUrl());
-        company.setIconUrl(data.getBranding().getIconUrl());
+        String lowerCaseTicker = data.getTicker().toLowerCase();
+        String logoUrl = "https://cdn.polygon.io/logos/" + lowerCaseTicker + "/logo.png";
+        String iconUrl = "https://cdn.polygon.io/logos/" + lowerCaseTicker + "/icon.png";
+        company.setLogoUrl(logoUrl);
+        company.setIconUrl(iconUrl);
         company.setMarketCap(data.getMarketCap());
         company.setPrimaryExchange(data.getPrimaryExchange());
         company.setStatus(response.getStatus());
