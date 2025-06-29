@@ -11,7 +11,17 @@ services:
       POSTGRES_DB: company_info_db
     ports:
       - "5432:5432"
+    networks:
+      - stocknet
 
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - api-gateway
+    networks:
+      - stocknet
 
   api-gateway:
     build: ./api-gateway
@@ -23,12 +33,16 @@ services:
       - currency-service
       - historical-analytics-service
       - stocks-service
+    networks:
+      - stocknet
 
   redis:
     image: redis:7-alpine
     container_name: redis
     ports:
       - "6380:6379"
+    networks:
+      - stocknet
 
   company-info-service:
       build: ./company-info-service
@@ -43,11 +57,15 @@ services:
           - postgres
       ports:
         - "8081:8080"
+      networks:
+        - stocknet
 
   news-service:
       build: ./news-service
       ports:
         - "8082:8080"
+      networks:
+        - stocknet
 
   currency-service:
       build: ./currency-service
@@ -93,5 +111,7 @@ services:
       - monitoring
 
 networks:
+  stocknet:
+
   monitoring:
     driver: bridge
