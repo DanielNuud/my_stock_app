@@ -5,6 +5,11 @@ spring:
   cloud:
     gateway:
       routes:
+        - id: ticker-service
+          uri: http://company-info-service:8080
+          predicates:
+            - Path=/api/tickers/**
+
         - id: company-service
           uri: http://company-info-service:8080
           predicates:
