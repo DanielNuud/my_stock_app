@@ -11,4 +11,5 @@ import java.util.Optional;
 public interface NewsRepository extends JpaRepository<Article, String> {
     boolean existsById(String id);
     Optional<List<Article>> findAllByTickersContaining(String ticker);
+    List<Article> findTop5ByTickersOrderByPublishedUtcDesc(String ticker);
 }

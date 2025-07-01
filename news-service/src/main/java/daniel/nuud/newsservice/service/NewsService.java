@@ -6,6 +6,7 @@ import daniel.nuud.newsservice.exception.ResourceNotFoundException;
 import daniel.nuud.newsservice.model.Article;
 import daniel.nuud.newsservice.repository.NewsRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class NewsService {
 
     private final WebClient webClient;
@@ -27,8 +29,10 @@ public class NewsService {
     @Value("${polygon.api.key}")
     private String apiKey;
 
-    public List<Article> fetchAndSaveNews(String ticker) {
+    public void fetchAndSaveNews(String ticker) {
         ApiResponse response = getApiResponse(ticker);
+
+        log.info("Fetching news for ticker: {}", ticker);
 
         if (response == null || response.getResults() == null) {
             throw new ResourceNotFoundException("No news found for ticker " + ticker);
@@ -66,10 +70,8 @@ public class NewsService {
 
 
         if (!articles.isEmpty()) {
-            return newsRepository.saveAll(articles);
+            newsRepository.saveAll(articles);
         }
-
-        return List.of();
     }
 
     public ApiResponse getApiResponse(String ticker) {
@@ -89,6 +91,10 @@ public class NewsService {
 
     public List<Article> getAllNews() {
         return newsRepository.findAll();
+    }
+
+    public List<Article> getTop5NewsByTicker(String ticker) {
+        return newsRepository.findTop5ByTickersOrderByPublishedUtcDesc(ticker);
     }
 
 }
