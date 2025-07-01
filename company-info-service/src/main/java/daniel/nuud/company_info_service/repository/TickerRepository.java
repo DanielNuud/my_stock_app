@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface TickerRepository extends JpaRepository<TickerEntity, String> {
-    List<TickerEntity> findTop5ByTickerIgnoreCaseStartingWithOrCompanyNameIgnoreCaseContaining(String tickerStart, String nameContains);
+    List<TickerEntity> findTop5ByTickerIgnoreCaseContaining(String tickerStart);
 }
