@@ -1,6 +1,7 @@
 package daniel.nuud.newsservice.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.Column;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,6 +15,7 @@ public class ApiArticle {
     private String articleUrl;
 
     private String title;
+    @Column(columnDefinition = "TEXT")
     private String description;
     private String id;
 

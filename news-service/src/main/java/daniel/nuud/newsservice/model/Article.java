@@ -22,6 +22,8 @@ public class Article {
 
     private String title;
     private String author;
+
+    @Column(columnDefinition = "TEXT")
     private String description;
     private String articleUrl;
     private String imageUrl;
