@@ -64,6 +64,6 @@ public class TickerService {
     public List<TickerEntity> autocomplete(String query) {
         fetchAndSaveTickers(query);
 
-        return tickerRepository.findTop5ByTickerIgnoreCaseContaining(query);
+        return tickerRepository.findTop5ByTickerStartsWithIgnoreCase(query);
     }
 }

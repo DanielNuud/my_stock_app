@@ -56,7 +56,7 @@ public class CompanyService {
         Company company = new Company();
         company.setTicker(data.getTicker());
         company.setName(data.getName());
-//            company.setDescription(data.getDescription());
+        company.setDescription(data.getDescription());
         company.setHomepageUrl(data.getHomepageUrl());
         company.setCity(data.getAddress().getCity());
         company.setAddress1(data.getAddress().getAddress1());

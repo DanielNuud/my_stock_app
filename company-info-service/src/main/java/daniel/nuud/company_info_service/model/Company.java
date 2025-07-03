@@ -20,6 +20,7 @@ public class Company implements Serializable {
     @Column(name = "ticker", nullable = false, unique = true)
     private String ticker;
 
+    @Column(columnDefinition = "TEXT")
     private String description;
     private String name;
     private String homepageUrl;
