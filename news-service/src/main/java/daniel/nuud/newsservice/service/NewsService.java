@@ -74,7 +74,7 @@ public class NewsService {
         }
     }
 
-    public ApiResponse getApiResponse(String ticker) {
+    private ApiResponse getApiResponse(String ticker) {
         ApiResponse response = webClient.get()
                 .uri("/v2/reference/news?ticker={ticker}&order=asc&limit=10&sort=published_utc&apiKey={apiKey}",
                         ticker, apiKey)
