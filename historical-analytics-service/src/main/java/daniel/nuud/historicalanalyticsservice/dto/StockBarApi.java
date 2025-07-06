@@ -22,7 +22,7 @@ public class StockBarApi {
     private Double openPrice;
 
     @JsonProperty("t")
-    private Integer timestamp;
+    private Long timestamp;
 
     @JsonProperty("v")
     private Integer volume;

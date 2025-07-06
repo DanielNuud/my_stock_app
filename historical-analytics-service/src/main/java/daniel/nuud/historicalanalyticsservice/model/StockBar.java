@@ -1,7 +1,7 @@
 package daniel.nuud.historicalanalyticsservice.model;
 
+import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -16,8 +16,8 @@ import lombok.Setter;
 @Setter
 public class StockBar {
 
-    @Id
-    private String ticker;
+    @EmbeddedId
+    private StockBarId id;
 
     private Double closePrice;
 
@@ -31,5 +31,5 @@ public class StockBar {
 
     private Integer numberOfTransactions;
 
-    private Integer timestamp;
+    private Long timestamp;
 }
