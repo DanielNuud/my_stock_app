@@ -2,8 +2,10 @@ package daniel.nuud.historicalanalyticsservice.dto;
 
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class ApiResponse {
     private String status;
-    private StockBarApi results;
+    private List<StockBarApi> results;
 }
