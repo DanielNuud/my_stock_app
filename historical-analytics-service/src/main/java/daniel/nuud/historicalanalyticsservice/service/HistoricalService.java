@@ -5,6 +5,7 @@ import daniel.nuud.historicalanalyticsservice.dto.StockBarApi;
 import daniel.nuud.historicalanalyticsservice.model.Period;
 import daniel.nuud.historicalanalyticsservice.model.StockBar;
 import daniel.nuud.historicalanalyticsservice.model.StockBarId;
+import daniel.nuud.historicalanalyticsservice.model.Timespan;
 import daniel.nuud.historicalanalyticsservice.repository.StockBarRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,7 +35,7 @@ public class HistoricalService {
         this.stockBarRepository = stockBarRepository;
     }
 
-    private LocalDate toNow = LocalDate.now();
+    private final LocalDate toNow = LocalDate.now();
 
 //    public List<StockBar> fetchStockBar(String ticker, LocalDate from, LocalDate to, Integer multiplier, String timespan) {
 //      log.info("Fetching stock bar for ticker {}", ticker);
@@ -77,8 +78,12 @@ public class HistoricalService {
     }
 
     public List<StockBar> getHistoricalStockBar(String ticker, String period, Integer multiplier, String timespan) {
+
         Period fromStringToPeriod = Period.valueOf(period.toUpperCase());
         LocalDate fromDate = determinePeriod(fromStringToPeriod);
+
+        Timespan fromStringToTimespan = Timespan.valueOf(timespan.toUpperCase());
+        String timespanString = determineTimespan(fromStringToTimespan);
 
         List<StockBar> existingBars = stockBarRepository.findByTickerAndDateRange(ticker, fromDate, toNow);
 
@@ -92,7 +97,7 @@ public class HistoricalService {
         log.info("Fetching stock bar for ticker {}", ticker);
         ApiResponse response = webClient.get()
                 .uri("/v2/aggs/ticker/{ticker}/range/{multiplier}/{timespan}/{from}/{to}?adjusted=true&sort=asc&apiKey={apiKey}",
-                        ticker, multiplier, timespan, fromDate, toNow, apiKey)
+                        ticker, multiplier, timespanString, fromDate, toNow, apiKey)
                 .retrieve()
                 .bodyToMono(ApiResponse.class)
                 .block();
@@ -119,6 +124,19 @@ public class HistoricalService {
             case ONE_MONTH -> toDate.minusMonths(1);
             case ONE_YEAR -> toDate.minusYears(1);
             case FIVE_YEARS -> toDate.minusYears(5);
+        };
+    }
+
+    private String determineTimespan(Timespan timespan) {
+        return switch (timespan) {
+            case SECOND -> "SECOND";
+            case MINUTE -> "MINUTE";
+            case HOUR -> "HOUR";
+            case DAY -> "DAY";
+            case WEEK -> "WEEK";
+            case MONTH -> "MONTH";
+            case QUARTER ->  "QUARTER";
+            case YEAR -> "YEAR";
         };
     }
 }
