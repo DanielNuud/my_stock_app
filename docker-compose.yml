@@ -4,6 +4,7 @@ services:
 
   company-db:
     image: postgres:16
+    container_name: company-db
     restart: always
     environment:
       POSTGRES_USER: postgres
@@ -16,6 +17,7 @@ services:
 
   news-db:
     image: postgres:16
+    container_name: news-db
     restart: always
     environment:
       POSTGRES_USER: postgres
@@ -26,8 +28,22 @@ services:
     networks:
       - stocknet
 
+  historical-db:
+    image: postgres:16
+    container_name: historical-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: historical_db
+    ports:
+      - "5434:5432"
+    networks:
+      - stocknet
+
   frontend:
     build: ./frontend
+    container_name: frontend
     ports:
       - "5173:80"
     depends_on:
@@ -37,6 +53,7 @@ services:
 
   api-gateway:
     build: ./api-gateway
+    container_name: api-gateway
     ports:
       - "8080:8080"
     depends_on:
@@ -58,6 +75,7 @@ services:
 
   company-info-service:
       build: ./company-info-service
+      container_name: company-info-service
       environment:
         SPRING_DATASOURCE_URL: jdbc:postgresql://company-db:5432/company_info_db
         SPRING_DATASOURCE_USERNAME: postgres
@@ -74,6 +92,7 @@ services:
 
   news-service:
       build: ./news-service
+      container_name: news-service
       environment:
         SPRING_DATASOURCE_URL: jdbc:postgresql://news-db:5432/news_db
         SPRING_DATASOURCE_USERNAME: postgres
@@ -87,21 +106,35 @@ services:
         - stocknet
 
   currency-service:
+      container_name: currency-service
       build: ./currency-service
       ports:
         - "8083:8080"
 
   historical-analytics-service:
       build: ./historical-analytics-service
+      container_name: historical-service
+      environment:
+        SPRING_DATASOURCE_URL: jdbc:postgresql://historical-db:5432/historical_db
+        SPRING_DATASOURCE_USERNAME: postgres
+        SPRING_DATASOURCE_PASSWORD: postgres
+        POLYGON_API_KEY: V4_aPjfLf3uRm1v8EO3SRFvJfOM4WtDp
+      depends_on:
+        - historical-db
       ports:
         - "8084:8080"
+      networks:
+        - stocknet
 
   stocks-service:
       build: ./stocks-service
+      container_name: stocks-service
       ports:
         - "8085:8080"
       environment:
         - POLYGON_API_KEY=${POLYGON_API_KEY}
+      networks:
+        - stocknet
 
   prometheus:
     image: prom/prometheus
