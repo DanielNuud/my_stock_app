@@ -83,7 +83,7 @@ public class HistoricalService {
         LocalDate fromDate = determinePeriod(fromStringToPeriod);
 
         Timespan fromStringToTimespan = Timespan.valueOf(timespan.toUpperCase());
-        String timespanString = determineTimespan(fromStringToTimespan);
+        String timespanString = determineTimespan(fromStringToTimespan).toLowerCase();
 
         List<StockBar> existingBars = stockBarRepository.findByTickerAndDateRange(ticker, fromDate, toNow);
 
@@ -96,7 +96,7 @@ public class HistoricalService {
 
         log.info("Fetching stock bar for ticker {}", ticker);
         ApiResponse response = webClient.get()
-                .uri("/v2/aggs/ticker/{ticker}/range/{multiplier}/{timespan}/{from}/{to}?adjusted=true&sort=asc&apiKey={apiKey}",
+                .uri("/v2/aggs/ticker/{ticker}/range/{multiplier}/{timespanString}/{fromDate}/{toNow}?adjusted=true&sort=asc&apiKey={apiKey}",
                         ticker, multiplier, timespanString, fromDate, toNow, apiKey)
                 .retrieve()
                 .bodyToMono(ApiResponse.class)
@@ -117,13 +117,11 @@ public class HistoricalService {
 
     private LocalDate determinePeriod(Period from) {
 
-        LocalDate toDate = LocalDate.now();
         return switch (from) {
-            case ONE_DAY -> toDate.minusDays(1);
-            case ONE_WEEK -> toDate.minusWeeks(1);
-            case ONE_MONTH -> toDate.minusMonths(1);
-            case ONE_YEAR -> toDate.minusYears(1);
-            case FIVE_YEARS -> toDate.minusYears(5);
+            case ONE_WEEK -> toNow.minusWeeks(1);
+            case ONE_MONTH -> toNow.minusMonths(1);
+            case ONE_YEAR -> toNow.minusYears(1);
+            case FIVE_YEARS -> toNow.minusYears(5);
         };
     }
 
