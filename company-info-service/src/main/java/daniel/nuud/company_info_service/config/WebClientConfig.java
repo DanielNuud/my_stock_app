@@ -19,7 +19,7 @@ public class WebClientConfig {
         return WebClient.builder()
                 .baseUrl("https://api.polygon.io")
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .defaultUriVariables(Map.of("apiKey", apiKey))
+                .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + apiKey)
                 .build();
     }
 

@@ -54,24 +54,25 @@ public class CompanyService {
         Ticket data = response.getResults();
 
         Company company = new Company();
-        company.setTicker(data.getTicker());
-        company.setName(data.getName());
-        company.setDescription(data.getDescription());
-        company.setHomepageUrl(data.getHomepageUrl());
-        company.setCity(data.getAddress().getCity());
-        company.setAddress1(data.getAddress().getAddress1());
-        String lowerCaseTicker = data.getTicker().toLowerCase();
-        String logoUrl = "https://cdn.polygon.io/logos/" + lowerCaseTicker + "/logo.png";
-        String iconUrl = "https://cdn.polygon.io/logos/" + lowerCaseTicker + "/icon.png";
-        company.setLogoUrl(logoUrl);
-        company.setIconUrl(iconUrl);
-        company.setMarketCap(data.getMarketCap());
-        company.setPrimaryExchange(data.getPrimaryExchange());
-        company.setStatus(response.getStatus());
+        company.setTicker(defaultIfNull(data.getTicker(), "Not found"));
+        company.setName(defaultIfNull(data.getName(), "Not found"));
+        company.setDescription(defaultIfNull(data.getDescription(), "Not found"));
+        company.setHomepageUrl(defaultIfNull(data.getHomepageUrl(), "Not found"));
+        company.setCity(data.getAddress() != null ? defaultIfNull(data.getAddress().getCity(), "Not found") : "Not found");
+        company.setAddress1(data.getAddress() != null ? defaultIfNull(data.getAddress().getAddress1(), "Not found") : "Not found");
+        company.setLogoUrl(data.getBranding() != null ? defaultIfNull(data.getBranding().getLogoUrl(), "Not found") : "Not found");
+        company.setIconUrl(data.getBranding() != null ? defaultIfNull(data.getBranding().getIconUrl(), "Not found") : "Not found");
+        company.setMarketCap(defaultIfNull(String.valueOf(data.getMarketCap()), "Not found"));
+        company.setPrimaryExchange(defaultIfNull(data.getPrimaryExchange(), "Not found"));
+        company.setStatus(defaultIfNull(response.getStatus(), "Not found"));
 
         companyRepository.save(company);
 
         return company;
+    }
+
+    private String defaultIfNull(String value, String defaultValue) {
+        return value != null ? value : defaultValue;
     }
 
 }

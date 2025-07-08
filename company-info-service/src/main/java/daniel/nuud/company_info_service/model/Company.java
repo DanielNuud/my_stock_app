@@ -25,7 +25,7 @@ public class Company implements Serializable {
     private String name;
     private String homepageUrl;
     private String primaryExchange;
-    private Long marketCap;
+    private String marketCap;
     private String city;
     private String address1;
     private String iconUrl;

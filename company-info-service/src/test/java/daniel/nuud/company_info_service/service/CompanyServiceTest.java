@@ -83,9 +83,9 @@ class CompanyServiceTest {
         address.setCity("Mountain View");
         address.setAddress1("1600 Amphitheatre Parkway");
 
-//        Branding branding = new Branding();
-//        branding.setLogoUrl("https://logo.example.com/google.png");
-//        branding.setIconUrl("https://icon.example.com/google-icon.png");
+        Branding branding = new Branding();
+        branding.setLogoUrl("https://logo.example.com/google.png");
+        branding.setIconUrl("https://icon.example.com/google-icon.png");
 
 
         Ticket ticketData = new Ticket();
@@ -95,7 +95,7 @@ class CompanyServiceTest {
         ticketData.setMarketCap(1_000_000_000L);
         ticketData.setPrimaryExchange("NASDAQ");
         ticketData.setAddress(address);
-//        ticketData.setBranding(branding);
+        ticketData.setBranding(branding);
 
         ApiResponse fakeApiResp = new ApiResponse();
         fakeApiResp.setStatus("OK");
@@ -110,12 +110,12 @@ class CompanyServiceTest {
         assertThat(result.getTicker()).isEqualTo("GOOG");
         assertThat(result.getName()).isEqualTo("Google LLC");
         assertThat(result.getHomepageUrl()).isEqualTo("https://google.com");
-        assertThat(result.getMarketCap()).isEqualTo(1_000_000_000L);
+        assertThat(result.getMarketCap()).isEqualTo("1000000000");
         assertThat(result.getPrimaryExchange()).isEqualTo("NASDAQ");
         assertThat(result.getCity()).isEqualTo("Mountain View");
         assertThat(result.getAddress1()).isEqualTo("1600 Amphitheatre Parkway");
-//        assertThat(result.getLogoUrl()).isEqualTo("https://logo.example.com/google.png");
-//        assertThat(result.getIconUrl()).isEqualTo("https://icon.example.com/google-icon.png");
+        assertThat(result.getLogoUrl()).isEqualTo("https://logo.example.com/google.png");
+        assertThat(result.getIconUrl()).isEqualTo("https://icon.example.com/google-icon.png");
         assertThat(result.getStatus()).isEqualTo("OK");
 
         ArgumentCaptor<Company> captor = ArgumentCaptor.forClass(Company.class);
@@ -124,7 +124,7 @@ class CompanyServiceTest {
         assertThat(saved.getTicker()).isEqualTo("GOOG");
         assertThat(saved.getName()).isEqualTo("Google LLC");
         assertThat(saved.getCity()).isEqualTo("Mountain View");
-//        assertThat(saved.getLogoUrl()).isEqualTo("https://logo.example.com/google.png");
+        assertThat(saved.getLogoUrl()).isEqualTo("https://logo.example.com/google.png");
     }
 
     @Test
