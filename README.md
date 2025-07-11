@@ -68,7 +68,7 @@ cd my_stock_app
 Run project with Docker Compose:
 
 ```bash
-docker-compose up --build
+docker-compose up -d --build
 ```
 
 Visit:
