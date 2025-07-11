@@ -61,7 +61,7 @@ public class WebSocketClient {
 
     public void subscribeTo(String ticker) {
         if (webSocket != null) {
-            String message = "{\"action\":\"subscribe\",\"params\":\"A." + ticker + "\"}";
+            String message = "{\"action\":\"subscribe\",\"params\":\"AM." + ticker + "\"}";
             System.out.println("Subscribing to: " + message);
             webSocket.send(message);
         }
