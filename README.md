@@ -65,7 +65,7 @@ git clone https://github.com/DanielNuud/my_stock_app.git
 cd my_stock_app
 ```
 
-Run backend with Docker Compose:
+Run project with Docker Compose:
 
 ```bash
 docker-compose up --build
