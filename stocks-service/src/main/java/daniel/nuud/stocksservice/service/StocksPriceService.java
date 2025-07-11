@@ -1,6 +1,8 @@
 package daniel.nuud.stocksservice.service;
 
 import daniel.nuud.stocksservice.model.StockPrice;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -9,6 +11,9 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 
 @Service
 public class StocksPriceService {
+
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
 
     private final Map<String, Deque<StockPrice>> priceMap = new ConcurrentHashMap<>();
     private static final int MAX_ENTRIES = 100;
@@ -21,7 +26,10 @@ public class StocksPriceService {
             deque.pollFirst();
         }
 
-        deque.addLast(new StockPrice(ticker, price, timestamp));
+        StockPrice stockPrice = new StockPrice(ticker, price, timestamp);
+        deque.addLast(stockPrice);
+
+        messagingTemplate.convertAndSend("/topic/stocks/" + ticker, stockPrice);
     }
 
     public List<StockPrice> getPrices(String ticker) {
