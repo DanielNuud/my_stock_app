@@ -9,6 +9,7 @@ This project is the **first part of my diploma work**, where the next stage will
 
 * Fetch and store **historical stock data** from Polygon.io with chart display.
 * Supports **1 day, 1 week, 1 month, 1 year, 5 years** periods.
+* Real-time stock data processing via WebSocket.
 * Integrated **news service** for company-related news.
 * **Currency service** for currency conversion.
 * **API Gateway** for routing and securing microservices.
