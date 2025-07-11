@@ -14,7 +14,7 @@ This project is the **first part of my diploma work**, where the next stage will
 * **Currency service** for currency conversion.
 * **API Gateway** for routing and securing microservices.
 * **Docker and Docker Compose** for deployment.
-* **React frontend** with clean UI.
+* **React frontend** with clean UI. (created with ChatGPT)
 * **Postman collections** for API testing.
 
 ## 🛠️ Technologies
