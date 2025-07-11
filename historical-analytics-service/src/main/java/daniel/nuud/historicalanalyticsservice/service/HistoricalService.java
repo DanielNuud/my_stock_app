@@ -118,6 +118,8 @@ public class HistoricalService {
     private LocalDate determinePeriod(Period from) {
 
         return switch (from) {
+            case TODAY -> toNow;
+            case YESTERDAY -> toNow.minusDays(1);
             case ONE_WEEK -> toNow.minusWeeks(1);
             case ONE_MONTH -> toNow.minusMonths(1);
             case ONE_YEAR -> toNow.minusYears(1);
