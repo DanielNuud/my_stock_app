@@ -1,3 +1,8 @@
+FROM gradle:8.5-jdk17-alpine AS build
+WORKDIR /app
+COPY . .
+RUN gradle clean build --no-daemon
+
 FROM eclipse-temurin:17-jdk
 WORKDIR /app
 COPY build/libs/currency-service.jar app.jar
