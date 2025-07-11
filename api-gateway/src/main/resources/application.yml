@@ -35,6 +35,11 @@ spring:
           predicates:
             - Path=/api/stocks/**
 
+        - id: stocks-service-ws
+          uri: ws://stocks-service:8080
+          predicates:
+          - Path=/ws/stocks/**
+
 management:
   endpoints:
     web:
