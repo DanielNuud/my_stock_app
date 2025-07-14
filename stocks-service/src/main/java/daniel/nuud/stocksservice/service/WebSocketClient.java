@@ -2,6 +2,8 @@ package daniel.nuud.stocksservice.service;
 
 import jakarta.annotation.PostConstruct;
 import okhttp3.*;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -35,20 +37,38 @@ public class WebSocketClient {
             public void onMessage(WebSocket webSocket, String text) {
                 System.out.println("Message: " + text);
 
-                if (text.contains("\"status\":\"auth_success\"")) {
-                    System.out.println("Authenticated, ready for subscriptions.");
-                }
+                try {
+                    JSONArray array = new JSONArray(text);
+                    for (int i = 0; i < array.length(); i++) {
+                        JSONObject json = array.getJSONObject(i);
 
-                if (text.contains("\"ev\":\"A\"")) {
-                    try {
-                        String ticker = text.split("\"sym\":\"")[1].split("\"")[0];
-                        double close = Double.parseDouble(text.split("\"c\":")[1].split(",")[0]);
-                        long timestamp = Long.parseLong(text.split("\"e\":")[1].split("}")[0]);
+                        String event = json.optString("ev", "");
 
-                        stockPriceService.save(ticker, close, timestamp);
-                    } catch (Exception e) {
-                        System.err.println("Failed to parse aggregate message: " + text);
+                        switch (event) {
+                            case "status":
+                                String status = json.optString("status");
+                                String message = json.optString("message");
+                                System.out.println("Status: " + status + " | Message: " + message);
+                                break;
+
+                            case "AM":
+                                String ticker = json.getString("sym");
+                                double close = json.getDouble("c");
+                                long timestamp = json.getLong("e");
+
+                                System.out.println("Saving stock: " + ticker + " -> " + close + " @ " + timestamp);
+                                stockPriceService.save(ticker, close, timestamp);
+                                break;
+
+                            default:
+                                System.out.println("Unknown event type: " + event);
+                                break;
+                        }
                     }
+
+                } catch (Exception e) {
+                    System.err.println("Failed to parse or process message: " + text);
+                    e.printStackTrace();
                 }
             }
 

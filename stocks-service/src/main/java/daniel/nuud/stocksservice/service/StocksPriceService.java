@@ -1,6 +1,7 @@
 package daniel.nuud.stocksservice.service;
 
 import daniel.nuud.stocksservice.model.StockPrice;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -10,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 @Service
+@Slf4j
 public class StocksPriceService {
 
     @Autowired
@@ -29,6 +31,7 @@ public class StocksPriceService {
         StockPrice stockPrice = new StockPrice(ticker, price, timestamp);
         deque.addLast(stockPrice);
 
+        log.info("Broadcasting via WebSocket: {}", stockPrice);
         messagingTemplate.convertAndSend("/topic/stocks/" + ticker, stockPrice);
     }
 
