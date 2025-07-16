@@ -5,7 +5,7 @@ const useLiveStockChartData = (ticker, period, setHistoricalData) => {
     useEffect(() => {
         if (period !== "today") {
             console.log("Not in live mode, skipping WebSocket connection.");
-            return; // ❌ Не подключаем сокет для других вкладок
+            return; 
         }
 
         const client = new Client({
