@@ -65,11 +65,19 @@ services:
     networks:
       - stocknet
 
-  redis:
+  company-redis:
     image: redis:7-alpine
-    container_name: redis
+    container_name: company-redis
     ports:
       - "6380:6379"
+    networks:
+      - stocknet
+
+  currency-redis:
+    image: redis:7-alpine
+    container_name: currency-redis
+    ports:
+      - "6381:6379"
     networks:
       - stocknet
 
@@ -81,10 +89,11 @@ services:
         SPRING_DATASOURCE_USERNAME: postgres
         SPRING_DATASOURCE_PASSWORD: postgres
         POLYGON_API_KEY: V4_aPjfLf3uRm1v8EO3SRFvJfOM4WtDp
-        SPRING_REDIS_HOST: redis
+        SPRING_REDIS_HOST: company-redis
         SPRING_REDIS_PORT: 6379
       depends_on:
           - company-db
+          - company-redis
       ports:
         - "8081:8080"
       networks:
@@ -106,10 +115,16 @@ services:
         - stocknet
 
   currency-service:
-      container_name: currency-service
-      build: ./currency-service
-      ports:
-        - "8083:8080"
+    build: ./currency-service
+    container_name: currency-service
+    ports:
+      - "8083:8080"
+    environment:
+      SPRING_REDIS_HOST: currency-redis
+    depends_on:
+      - currency-redis
+    networks:
+      - stocknet
 
   historical-analytics-service:
       build: ./historical-analytics-service
