@@ -35,6 +35,7 @@
 }
 
 .search-page {
+    background-color: #121212;
     overflow-x: hidden;
     min-height: 100vh;
     padding: 0 20px;
@@ -43,6 +44,12 @@
     align-items: center;
     flex-direction: column;
     text-align: center;
+}
+
+.search-page h1,
+.search-page h2,
+.search-page p {
+    color: #ffffff;
 }
 
 
@@ -267,4 +274,48 @@ body {
     .news-card {
         flex-direction: row;
     }
+}
+
+.converter-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+.currency-select {
+    min-width: max-content;
+    padding: 8px 16px;
+    background-color: #2c2c2c;
+    color: white;
+    border: none;
+    border-radius: 9999px;
+    text-align: center;          /* Горизонтальное выравнивание */
+    appearance: none;
+    font-size: 1rem;
+    line-height: 1.5;            /* Вертикальное выравнивание */
+    height: 44px;                /* Установи фиксированную высоту */
+    display: flex;
+    align-items: center;         /* Центрирование по вертикали */
+    justify-content: center;     /* Центрирование по горизонтали */
+}
+
+.amount-input {
+    width: 120px;
+    min-width: 100px;
+    align-items: center;         /* Центрирование по вертикали */
+    justify-content: center;
+    text-align: center;
+}
+
+.converter-result {
+    width: 100%;
+    text-align: center;
+    margin-top: 15px;
+    font-size: 1.2rem;
+    color: #ffffff;
 }
