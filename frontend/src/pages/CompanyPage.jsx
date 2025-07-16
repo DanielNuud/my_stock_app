@@ -30,7 +30,7 @@ const CompanyPage = () => {
     const [news, setNews] = useState([]);
     const [loading, setLoading] = useState(true);
     const [historicalData, setHistoricalData] = useState([]);
-    const [period, setPeriod] = useState("one_month");
+    const [period, setPeriod] = useState("one_week");
     useLiveStockChartData(ticker, period, setHistoricalData);
     const [companyError, setCompanyError] = useState(false);
     const [newsError, setNewsError] = useState(false);
