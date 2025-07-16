@@ -18,8 +18,8 @@ public class CurrencyController {
         return currencyService.getCurrencyRates(currency.toUpperCase());
     }
 
-    @GetMapping("/{currency}/convert")
-    public Double getCurrencyConvert(@PathVariable String currency, @RequestParam String toCurrency, @RequestParam Double amount) {
-        return currencyService.convert(currency, toCurrency, amount);
+    @GetMapping("/convert")
+    public Double getCurrencyConvert(@RequestParam String from, @RequestParam String to, @RequestParam Double amount) {
+        return currencyService.convert(from, to, amount);
     }
 }
