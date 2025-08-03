@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.List;
@@ -22,7 +23,7 @@ import java.util.stream.Collectors;
 public class TickerService {
 
     private final TickerRepository tickerRepository;
-    private final WebClient webClient;
+    private final RestClient restClient;
 
     @Value("${polygon.api.key}")
     private String apiKey;
@@ -30,11 +31,10 @@ public class TickerService {
     @Transactional
     public void fetchAndSaveTickers(String query) {
 
-        TickerApiResponse response = webClient.get()
+        TickerApiResponse response = restClient.get()
                 .uri("/v3/reference/tickers?market=stocks&search={query}&apiKey={apiKey}", query.toUpperCase(), apiKey)
                 .retrieve()
-                .bodyToMono(TickerApiResponse.class)
-                .block();
+                .body(TickerApiResponse.class);
 
         if (response != null && response.getResults() != null) {
             List<Ticker> tickerDTOs = response.getResults();

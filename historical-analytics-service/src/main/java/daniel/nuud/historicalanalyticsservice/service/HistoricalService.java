@@ -7,9 +7,11 @@ import daniel.nuud.historicalanalyticsservice.model.StockBar;
 import daniel.nuud.historicalanalyticsservice.model.StockBarId;
 import daniel.nuud.historicalanalyticsservice.model.Timespan;
 import daniel.nuud.historicalanalyticsservice.repository.StockBarRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.Instant;
@@ -21,19 +23,15 @@ import java.util.List;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class HistoricalService {
 
-    private final WebClient webClient;
+    private final RestClient restClient;
 
     private final StockBarRepository stockBarRepository;
 
     @Value("${polygon.api.key}")
     private String apiKey;
-
-    public HistoricalService(WebClient webClient, StockBarRepository stockBarRepository) {
-        this.webClient = webClient;
-        this.stockBarRepository = stockBarRepository;
-    }
 
     private final LocalDate toNow = LocalDate.now();
 
@@ -95,12 +93,11 @@ public class HistoricalService {
         }
 
         log.info("Fetching stock bar for ticker {}", ticker);
-        ApiResponse response = webClient.get()
+        ApiResponse response = restClient.get()
                 .uri("/v2/aggs/ticker/{ticker}/range/{multiplier}/{timespanString}/{fromDate}/{toNow}?adjusted=true&sort=asc&apiKey={apiKey}",
                         ticker, multiplier, timespanString, fromDate, toNow, apiKey)
                 .retrieve()
-                .bodyToMono(ApiResponse.class)
-                .block();
+                .body(ApiResponse.class);
 
         if (response != null && response.getResults() != null) {
             List<StockBar> stockBars = response.getResults().stream()

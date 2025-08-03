@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.reactive.function.client.WebClient;
 
 @Service
@@ -17,7 +18,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 @RequiredArgsConstructor
 public class CompanyService {
 
-    private final WebClient webClient;
+    private final RestClient restClient;
 
     private final CompanyRepository companyRepository;
 
@@ -36,11 +37,10 @@ public class CompanyService {
             return existingCompany;
         }
 
-        ApiResponse response = webClient.get()
+        ApiResponse response = restClient.get()
                 .uri("/v3/reference/tickers/{ticker}?apiKey={apiKey}", ticker.toUpperCase(), apiKey)
                 .retrieve()
-                .bodyToMono(ApiResponse.class)
-                .block();
+                .body(ApiResponse.class);
 
         if (response == null || response.getResults() == null) {
             throw new ResourceNotFoundException("Company with ticker: " + ticker + " not found");

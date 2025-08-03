@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.ArrayList;
@@ -22,7 +23,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class NewsService {
 
-    private final WebClient webClient;
+    private final RestClient restClient;
 
     private final NewsRepository newsRepository;
 
@@ -75,12 +76,11 @@ public class NewsService {
     }
 
     private ApiResponse getApiResponse(String ticker) {
-        ApiResponse response = webClient.get()
+        ApiResponse response = restClient.get()
                 .uri("/v2/reference/news?ticker={ticker}&order=asc&limit=10&sort=published_utc&apiKey={apiKey}",
                         ticker, apiKey)
                 .retrieve()
-                .bodyToMono(ApiResponse.class)
-                .block();
+                .body(ApiResponse.class);
         return response;
     }
 
