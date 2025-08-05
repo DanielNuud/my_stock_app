@@ -74,9 +74,8 @@ const CompanyPage = () => {
     useEffect(() => {
         const fetchHistorical = async () => {
             try {
-                const timespan = period === "today" ? "minute" : "day";
                 const response = await fetch(
-                    `${import.meta.env.VITE_API_URL}/api/historical/${ticker}?period=${period}&multiplier=1&timespan=${timespan}`
+                    `${import.meta.env.VITE_API_URL}/api/historical/${ticker}?period=${period}`
                 );
                 if (!response.ok) throw new Error("Historical service unavailable");
                 const data = await response.json();

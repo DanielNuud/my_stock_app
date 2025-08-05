@@ -8,10 +8,10 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://historical-db:5432/historical_db
-    username: postgres
-    password: postgres
-    driver-class-name: org.postgresql.Driver
+#    url: jdbc:postgresql://historical-db:5432/historical_db
+#    username: postgres
+#    password: postgres
+#    driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
       ddl-auto: update

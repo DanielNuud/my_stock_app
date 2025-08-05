@@ -14,14 +14,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class HistoricalController {
 
-    @Autowired
-    private HistoricalService historicalService;
+    private final HistoricalService historicalService;
 
     @GetMapping("/{ticker}")
-    public ResponseEntity<List<StockBar>> getStockBar(@RequestParam String period,
-                                                     @RequestParam Integer multiplier, @PathVariable String ticker,
-                                                     @RequestParam String timespan) {
-
-        return ResponseEntity.ok(historicalService.getHistoricalStockBar(ticker, period, multiplier, timespan));
+    public ResponseEntity<List<StockBar>> getStockBar(@RequestParam String period, @PathVariable String ticker) {
+        return ResponseEntity.ok(historicalService.getHistoricalStockBar(ticker, period));
     }
 }

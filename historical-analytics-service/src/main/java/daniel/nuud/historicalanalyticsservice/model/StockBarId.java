@@ -8,6 +8,7 @@ import lombok.Setter;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Embeddable
@@ -18,7 +19,7 @@ import java.util.Objects;
 public class StockBarId implements Serializable {
 
     private String ticker;
-    private LocalDate date;
+    private LocalDateTime date;
 
     @Override
     public boolean equals(Object o) {
