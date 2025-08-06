@@ -148,6 +148,8 @@ services:
         - "8085:8080"
       environment:
         POLYGON_API_KEY: V4_aPjfLf3uRm1v8EO3SRFvJfOM4WtDp
+      depends_on:
+        - historical-analytics-service
       networks:
         - stocknet
 

@@ -11,7 +11,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class StockPrice {
 
-    private String symbol;
+    private String ticker;
     private double price;
     private long timestamp;
 
