@@ -1,5 +1,6 @@
 package daniel.nuud.historicalanalyticsservice.controller;
 
+import daniel.nuud.historicalanalyticsservice.dto.StockPrice;
 import daniel.nuud.historicalanalyticsservice.model.StockBar;
 import daniel.nuud.historicalanalyticsservice.service.HistoricalService;
 import lombok.RequiredArgsConstructor;
@@ -19,5 +20,11 @@ public class HistoricalController {
     @GetMapping("/{ticker}")
     public ResponseEntity<List<StockBar>> getStockBar(@RequestParam String period, @PathVariable String ticker) {
         return ResponseEntity.ok(historicalService.getHistoricalStockBar(ticker, period));
+    }
+
+    @PostMapping("/realtime")
+    public ResponseEntity<Void> receiveRealtimePrice(@RequestBody StockPrice stockPrice) {
+        historicalService.saveRealtimePrice(stockPrice);
+        return ResponseEntity.ok().build();
     }
 }
