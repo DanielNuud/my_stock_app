@@ -12,6 +12,7 @@ import {
     Legend,
 } from "chart.js";
 import useLiveStockChartData from "../hooks/useLiveStockChartData";
+import RealTimePrice from "../components/RealTimePrice";
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
@@ -29,13 +30,49 @@ const CompanyPage = () => {
     const [company, setCompany] = useState(null);
     const [news, setNews] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [historicalData, setHistoricalData] = useState([]);
     const [period, setPeriod] = useState("one_week");
-    useLiveStockChartData(ticker, period, setHistoricalData);
     const [companyError, setCompanyError] = useState(false);
     const [newsError, setNewsError] = useState(false);
     const [historicalError, setHistoricalError] = useState(false);
+    const [historicalData, setHistoricalData] = useState([]);
+    const [latestData, setLatestData] = useState(null);
+    useLiveStockChartData(ticker, setLatestData);
 
+    useEffect(() => {
+    if (period !== "today") return;
+    if (!latestData) return;
+
+    setHistoricalData(prev => {
+      // защита от дубликатов по времени
+      const last = prev[prev.length - 1];
+      const lastTs = last?.id?.timestamp ?? last?.timestamp;
+      if (lastTs === latestData.timestamp) return prev;
+
+      const point = {
+        id: { date: new Date(latestData.timestamp).toLocaleTimeString(), timestamp: latestData.timestamp },
+        closePrice: latestData.price,
+      };
+
+      // по желанию ограничим длину, чтобы не разрастался массив
+      const next = [...prev, point];
+      return next.length > 300 ? next.slice(next.length - 300) : next;
+    });
+  }, [latestData, period]);
+
+    useEffect(() => {
+        console.log("Subscribing to real-time stock data...");
+        const subscribeToLiveStock = async () => {
+            try {
+                await fetch(`${import.meta.env.VITE_API_URL}/api/stocks/subscribe/${ticker}`, {
+                    method: "POST",
+                });
+            } catch (error) {
+                console.error("Subscription to live stock updates failed:", error);
+            }
+        };
+
+        subscribeToLiveStock();
+    }, [ticker]);
 
     useEffect(() => {
         const fetchCompany = async () => {
@@ -104,17 +141,6 @@ const CompanyPage = () => {
 
     const handlePeriodChange = async (selectedPeriod) => {
         setPeriod(selectedPeriod);
-
-        if (selectedPeriod === "today") {
-            try {
-                await fetch(`${import.meta.env.VITE_API_URL}/api/stocks/subscribe/${ticker}`, {
-                    method: "POST",
-                });
-                console.log(`Subscribed to ${ticker} live data`);
-            } catch (error) {
-                console.error("Error subscribing to live data:", error);
-            }
-        }
     };
 
 
@@ -222,6 +248,9 @@ const CompanyPage = () => {
 
                 {/* RIGHT SIDE NEWS */}
                 <div className="col-md-4">
+
+                    <RealTimePrice latestPrice={latestData?.price} ticker={company.ticker} />
+
                     <div className="news-section">
                         <h4 className="text-center mb-3">Latest News</h4>
 
