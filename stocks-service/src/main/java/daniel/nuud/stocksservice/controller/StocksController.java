@@ -29,5 +29,4 @@ public class StocksController {
         wsClient.subscribeTo(ticker.toUpperCase());
         return "Subscribed to ticker: " + ticker.toUpperCase();
     }
-
 }

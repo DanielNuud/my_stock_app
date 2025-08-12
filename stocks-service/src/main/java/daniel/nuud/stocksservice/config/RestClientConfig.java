@@ -15,4 +15,11 @@ public class RestClientConfig {
                 .baseUrl("http://historical-service:8080")
                 .build();
     }
+
+    @Bean
+    public RestClient restClientCurrency() {
+        return RestClient.builder()
+                .baseUrl("http://currency-service:8080")
+                .build();
+    }
 }
