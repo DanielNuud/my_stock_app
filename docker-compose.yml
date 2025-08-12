@@ -41,6 +41,18 @@ services:
     networks:
       - stocknet
 
+  notification-db:
+    image: postgres:16
+    container_name: notification-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: notification_db
+    ports:
+      - "5435:5432"
+    networks:
+      - stocknet
+
   frontend:
     build: ./frontend
     container_name: frontend
@@ -152,6 +164,8 @@ services:
         - historical-analytics-service
       networks:
         - stocknet
+
+
 
   prometheus:
     image: prom/prometheus
