@@ -6,21 +6,27 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.RestClient;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.Map;
 
 @Configuration
-public class WebClientConfig {
+public class RestClientConfig {
 
     @Bean
-    public RestClient webClient(@Value("${freecurrency.api.key}") String apiKey) {
+    public RestClient restClient(@Value("${freecurrency.api.key}") String apiKey) {
         return RestClient.builder()
                 .baseUrl("https://api.freecurrencyapi.com")
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .defaultUriVariables(Map.of("apiKey", apiKey))
+                .build();
+    }
+
+    @Bean
+    public RestClient notificationRestClient() {
+        return RestClient.builder()
+                .baseUrl("http://localhost:8081")
                 .build();
     }
 

@@ -19,7 +19,12 @@ public class CurrencyController {
     }
 
     @GetMapping("/convert")
-    public Double getCurrencyConvert(@RequestParam String from, @RequestParam String to, @RequestParam Double amount) {
-        return currencyService.convert(from, to, amount);
+    public Double getCurrencyConvert(@RequestParam String from,
+                                     @RequestParam String to,
+                                     @RequestParam Double amount,
+                                     @RequestHeader(value = "X-User-Key", required = false) String userKey) {
+        if (userKey == null || userKey.isBlank()) userKey = "guest";
+        return currencyService.convert(from, to, amount, userKey);
     }
+
 }
