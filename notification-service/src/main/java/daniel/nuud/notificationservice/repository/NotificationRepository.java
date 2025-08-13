@@ -19,5 +19,9 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     List<Notification> findForUserSince(@Param("userKey") String userKey,
                                         @Param("since") Instant since);
 
+    List<Notification> findTop200ByUserKeyOrderByCreatedAtDesc(String userKey);
+
+    List<Notification> findByUserKeyAndCreatedAtAfterOrderByCreatedAtDesc(String userKey, Instant since);
+
     Optional<Notification> findByDedupeKey(String dedupeKey);
 }

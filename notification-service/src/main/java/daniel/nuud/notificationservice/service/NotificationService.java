@@ -6,8 +6,10 @@ import daniel.nuud.notificationservice.dto.NotificationResponse;
 import daniel.nuud.notificationservice.model.Level;
 import daniel.nuud.notificationservice.model.Notification;
 import daniel.nuud.notificationservice.repository.NotificationRepository;
+import jakarta.annotation.Nullable;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -16,12 +18,14 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class NotificationService {
 
     private final NotificationRepository notificationRepository;
 
     @Transactional
     public Long createNotification(CreateNotificationRequest createNotificationRequest) {
+        log.info("Received CreateNotificationRequest {}", createNotificationRequest);
         Optional<Notification> existing = notificationRepository.findByDedupeKey(createNotificationRequest.dedupeKey());
         if (existing.isPresent()) {
             return existing.get().getId();
@@ -41,9 +45,13 @@ public class NotificationService {
     }
 
     @Transactional
-    public List<NotificationResponse> listNotifications(String userKey, Instant since) {
-        return notificationRepository.findForUserSince(userKey, since)
-                .stream()
+    public List<NotificationResponse> listNotifications(String userKey, @Nullable Instant since) {
+
+        List<Notification> list = (since == null)
+                ? notificationRepository.findTop200ByUserKeyOrderByCreatedAtDesc(userKey)
+                : notificationRepository.findByUserKeyAndCreatedAtAfterOrderByCreatedAtDesc(userKey, since);
+
+        return list.stream()
                 .map(n -> new NotificationResponse(
                         n.getId(),
                         n.getUserKey(),
