@@ -22,4 +22,11 @@ public class RestClientConfig {
                 .baseUrl("http://currency-service:8080")
                 .build();
     }
+
+    @Bean
+    public RestClient notificationRestClient() {
+        return RestClient.builder()
+                .baseUrl("http://notification-service:8080")
+                .build();
+    }
 }

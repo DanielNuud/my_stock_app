@@ -1,6 +1,9 @@
 package daniel.nuud.stocksservice.service;
 
+import daniel.nuud.stocksservice.model.StockPrice;
+import daniel.nuud.stocksservice.notification.TenPercentMoveEngine;
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import okhttp3.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -9,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class WebSocketClient {
 
     @Value("${polygon.api.key}")
@@ -16,8 +20,8 @@ public class WebSocketClient {
     private final OkHttpClient client = new OkHttpClient();
     private WebSocket webSocket;
 
-    @Autowired
-    private StocksPriceService stockPriceService;
+    private final TenPercentMoveEngine tenPercentMoveEngine;
+    private final StocksPriceService stockPriceService;
 
     @PostConstruct
     public void connect() {
@@ -58,6 +62,11 @@ public class WebSocketClient {
 
                                 System.out.println("Saving stock: " + ticker + " -> " + close + " @ " + timestamp);
                                 stockPriceService.save(ticker, close, timestamp);
+
+                                tenPercentMoveEngine.onPrice(
+                                        new StockPrice(ticker, close, timestamp)
+                                );
+
                                 break;
 
                             default:
