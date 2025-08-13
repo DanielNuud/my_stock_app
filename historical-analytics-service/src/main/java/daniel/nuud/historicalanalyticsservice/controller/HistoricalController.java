@@ -18,8 +18,9 @@ public class HistoricalController {
     private final HistoricalService historicalService;
 
     @GetMapping("/{ticker}")
-    public ResponseEntity<List<StockBar>> getStockBar(@RequestParam String period, @PathVariable String ticker) {
-        return ResponseEntity.ok(historicalService.getHistoricalStockBar(ticker, period));
+    public ResponseEntity<List<StockBar>> getStockBar(@RequestParam String period, @PathVariable String ticker,
+                                                      @RequestHeader(value = "X-User-Key", defaultValue = "guest") String userKey) {
+        return ResponseEntity.ok(historicalService.getHistoricalStockBar(ticker, period, userKey));
     }
 
     @PostMapping("/realtime")

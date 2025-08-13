@@ -6,14 +6,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.RestClient;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import java.util.Map;
-
 @Configuration
-public class WebClientConfig {
+public class RestClientConfig {
 
     @Bean
     public RestClient polygonRestClient(@Value("${POLYGON_API_KEY}") String apiKey) {
@@ -34,5 +31,12 @@ public class WebClientConfig {
                         .allowedMethods("*");
             }
         };
+    }
+
+    @Bean
+    public RestClient notificationRestClient() {
+        return RestClient.builder()
+                .baseUrl("http://notification-service:8080")
+                .build();
     }
 }

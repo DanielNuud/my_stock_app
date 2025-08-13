@@ -5,7 +5,7 @@ import daniel.nuud.historicalanalyticsservice.dto.StockBarApi;
 import daniel.nuud.historicalanalyticsservice.dto.StockPrice;
 import daniel.nuud.historicalanalyticsservice.model.*;
 import daniel.nuud.historicalanalyticsservice.model.Period;
-import daniel.nuud.historicalanalyticsservice.repository.StockBarRepository;
+import daniel.nuud.historicalanalyticsservice.notification.NotificationClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,9 +24,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class HistoricalService {
 
-    private final RestClient restClient;
+    private final RestClient polygonRestClient;
 
-    private final StockBarRepository stockBarRepository;
+    private final NotificationClient notificationClient;
 
     @Value("${polygon.api.key}")
     private String apiKey;
@@ -58,7 +58,7 @@ public class HistoricalService {
         );
     }
 
-    public List<StockBar> getHistoricalStockBar(String ticker, String period) {
+    public List<StockBar> getHistoricalStockBar(String ticker, String period, String userKey) {
 
         Period fromStringToPeriod = Period.valueOf(period.toUpperCase());
         LocalDateTime fromDate = determinePeriod(fromStringToPeriod).with(LocalTime.MIN);
@@ -67,34 +67,60 @@ public class HistoricalService {
         String multiplier = preset.multiplier();
         String timespan = preset.timespan();
 
-        log.info("Fetching stock bar for ticker {}", ticker);
+        try {
+            log.info("Fetching stock bar for ticker {}", ticker);
 
-        String uri = String.format(
-                "/v2/aggs/ticker/%s/range/%s/%s/%s/%s?adjusted=true&sort=asc&limit=1500&apiKey=%s",
-                ticker, multiplier, timespan, fromDate.toLocalDate(), toNow.toLocalDate(), apiKey
-        );
+            String uri = String.format(
+                    "/v2/aggs/ticker/%s/range/%s/%s/%s/%s?adjusted=true&sort=asc&limit=1500&apiKey=%s",
+                    ticker, multiplier, timespan, fromDate.toLocalDate(), toNow.toLocalDate(), apiKey
+            );
 
-        log.info("Final URI for stock bar request: {}", uri);
-        ApiResponse response = getApiResponse(uri);
+            log.info("Final URI for stock bar request: {}", uri);
+            ApiResponse response = getApiResponse(uri);
 
-        if (response != null && response.getResults() != null) {
-            List<StockBar> stockBars = response.getResults().stream()
-                    .map(dto -> mapToEntity(ticker, dto))
-                    .collect(Collectors.toCollection(ArrayList::new));
-            log.info("Response raw: {}", response);
-            log.info("Results size: {}", response.getResults().size());
+            if (response != null && response.getResults() != null) {
+                List<StockBar> stockBars = response.getResults().stream()
+                        .map(dto -> mapToEntity(ticker, dto))
+                        .collect(Collectors.toCollection(ArrayList::new));
+                log.info("Response raw: {}", response);
+                log.info("Results size: {}", response.getResults().size());
 
-            StockPrice latest = latestPrices.get(ticker);
+                StockPrice latest = latestPrices.get(ticker);
 
-            if (latest != null) {
-                stockBars.add(convertToStockBar(latest));
+                if (latest != null) {
+                    stockBars.add(convertToStockBar(latest));
+                }
+
+                notificationClient.sendNotification(
+                        userKey,
+                        "Chart ready",
+                        ticker.toUpperCase() + " (" + period + ") is ready",
+                        "INFO",
+                        "CHART:READY:" + ticker.toUpperCase() + ":" + period
+                );
+
+                return stockBars;
+
+            } else {
+                notificationClient.sendNotification(
+                        userKey,
+                        "Chart fetch failed",
+                        "Please try again later.",
+                        "ERROR",
+                        "CHART:FAILED:" + ticker.toUpperCase() + ":" + period.toUpperCase()
+                );
             }
 
-            return stockBars;
-//            stockBarRepository.saveAll(stockBars);
+        } catch (Exception e) {
+            notificationClient.sendNotification(
+                    userKey,
+                    "Chart fetch failed",
+                    "Please try again later.",
+                    "ERROR",
+                    "CHART:FAILED:" + ticker.toUpperCase() + ":" + period
+            );
+            log.error("Error while fetching stock bar", e);
         }
-
-//        return stockBarRepository.findByTickerAndDateRange(ticker, fromDate, toNow);
         return List.of();
     }
 
@@ -126,24 +152,10 @@ public class HistoricalService {
     }
 
     private ApiResponse getApiResponse(String uri) {
-        return restClient.get()
+        return polygonRestClient.get()
                 .uri(uri)
                 .retrieve()
                 .body(ApiResponse.class);
-    }
-
-    private long estimateExpectedBars(LocalDateTime from, LocalDateTime to, int multiplier, String timespan) {
-        Duration totalDuration = Duration.between(from, to);
-
-        long unitSeconds = switch (timespan.toLowerCase()) {
-            case "minute" -> 60L;
-            case "hour" -> 3600L;
-            case "day" -> 86400L;
-            case "week" -> 604800L;
-            default -> throw new IllegalArgumentException("Unsupported timespan: " + timespan);
-        };
-
-        return totalDuration.getSeconds() / (unitSeconds * multiplier);
     }
 
     private LocalDateTime determinePeriod(Period from) {
@@ -155,19 +167,6 @@ public class HistoricalService {
             case ONE_MONTH -> toNow.minusMonths(1);
             case ONE_YEAR -> toNow.minusYears(1);
             case FIVE_YEARS -> toNow.minusYears(5);
-        };
-    }
-
-    private String determineTimespan(Timespan timespan) {
-        return switch (timespan) {
-            case SECOND -> "SECOND";
-            case MINUTE -> "MINUTE";
-            case HOUR -> "HOUR";
-            case DAY -> "DAY";
-            case WEEK -> "WEEK";
-            case MONTH -> "MONTH";
-            case QUARTER ->  "QUARTER";
-            case YEAR -> "YEAR";
         };
     }
 }
