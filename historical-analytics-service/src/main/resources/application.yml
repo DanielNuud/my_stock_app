@@ -7,7 +7,7 @@ server:
   address: 0.0.0.0
 
 spring:
-  datasource:
+#  datasource:
 #    url: jdbc:postgresql://historical-db:5432/historical_db
 #    username: postgres
 #    password: postgres

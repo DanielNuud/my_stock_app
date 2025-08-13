@@ -2,10 +2,10 @@ server:
   port: 8080
 
 spring:
-#  datasource:
-#    url: jdbc:postgresql://notification-db:5432/notification_db
-#    username: postgres
-#    password: postgres
+  datasource:
+    url: jdbc:postgresql://notification-db:5432/notification_db
+    username: postgres
+    password: postgres
   jpa:
     hibernate:
       ddl-auto: update
