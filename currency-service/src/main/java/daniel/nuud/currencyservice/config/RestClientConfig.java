@@ -26,7 +26,7 @@ public class RestClientConfig {
     @Bean
     public RestClient notificationRestClient() {
         return RestClient.builder()
-                .baseUrl("http://localhost:8081")
+                .baseUrl("http://notification-service:8080")
                 .build();
     }
 

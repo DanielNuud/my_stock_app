@@ -165,7 +165,15 @@ services:
       networks:
         - stocknet
 
-
+  notification-service:
+    build: ./notification-service
+    container_name: notification-service
+    ports:
+      - "8086:8080"
+    depends_on:
+      - notification-db
+    networks:
+      - stocknet
 
   prometheus:
     image: prom/prometheus
