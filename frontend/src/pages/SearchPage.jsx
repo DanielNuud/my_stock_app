@@ -1,11 +1,14 @@
 import { useState } from "react";
 import SearchBar from "../components/SearchBar.jsx";
 import CurrencyConverter from "../components/CurrencyConverter.jsx";
+import TopBar from "../components/TopBar";
 
 const SearchPage = () => {
     const [selected, setSelected] = useState("search");
 
     return (
+        <>
+        <TopBar title="My Stock App" />
         <div className="search-page d-flex flex-column align-items-center justify-content-start min-vh-100 px-3 pt-5">
 
             <h1 className="display-3 fw-bold mb-3 text-white">My Stock App</h1>
@@ -70,6 +73,7 @@ const SearchPage = () => {
                 </>
             )}
         </div>
+        </>
     );
 };
 

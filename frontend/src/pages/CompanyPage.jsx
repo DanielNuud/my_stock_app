@@ -13,6 +13,7 @@ import {
 } from "chart.js";
 import useLiveStockChartData from "../hooks/useLiveStockChartData";
 import RealTimePrice from "../components/RealTimePrice";
+import TopBar from "../components/TopBar";
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
@@ -153,6 +154,9 @@ const CompanyPage = () => {
     }
 
     return (
+        <>
+        <TopBar title="My Stock App" />
+        
         <div className="container-fluid">
             <div className="row">
                 {/* LEFT SIDE */}
@@ -293,6 +297,7 @@ const CompanyPage = () => {
 
             </div>
         </div>
+        </>
     );
 };
 
