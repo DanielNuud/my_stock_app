@@ -22,8 +22,7 @@ public class CurrencyController {
     public Double getCurrencyConvert(@RequestParam String from,
                                      @RequestParam String to,
                                      @RequestParam Double amount,
-                                     @RequestHeader(value = "X-User-Key", required = false) String userKey) {
-        if (userKey == null || userKey.isBlank()) userKey = "guest";
+                                     @RequestHeader(value = "X-User-Key", defaultValue = "guest") String userKey) {
         return currencyService.convert(from, to, amount, userKey);
     }
 

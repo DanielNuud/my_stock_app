@@ -27,9 +27,7 @@ public class StocksController {
 
     @PostMapping("/subscribe/{ticker}")
     public String subscribe(@PathVariable String ticker,
-                            @RequestHeader(value = "X-User-Key", required = false) String userKey) {
-        if (userKey == null || userKey.isBlank()) userKey = "guest";
-
+                            @RequestHeader(value = "X-User-Key", defaultValue = "guest") String userKey) {
         subscriptions.subscribe(userKey, ticker);
 
         wsClient.subscribeTo(ticker.toUpperCase());
@@ -39,14 +37,8 @@ public class StocksController {
 
     @DeleteMapping("/subscribe/{ticker}")
     public String unsubscribe(@PathVariable String ticker,
-                              @RequestHeader(value = "X-User-Key", required = false) String userKey) {
-        if (userKey == null || userKey.isBlank()) userKey = "guest";
-
+                              @RequestHeader(value = "X-User-Key", defaultValue = "guest") String userKey) {
         subscriptions.unsubscribe(userKey, ticker);
-
-//        if (subscriptions.listeners(ticker).isEmpty()) {
-//            wsClient.unsubscribe(ticker);
-//        }
 
         return "Unsubscribed from ticker: " + ticker.toUpperCase();
     }
