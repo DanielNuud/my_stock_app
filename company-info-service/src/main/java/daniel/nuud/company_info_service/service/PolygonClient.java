@@ -2,7 +2,6 @@ package daniel.nuud.company_info_service.service;
 
 import daniel.nuud.company_info_service.dto.api.ApiResponse;
 import daniel.nuud.company_info_service.dto.api.TickerApiResponse;
-import daniel.nuud.company_info_service.dto.api.Ticket;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;

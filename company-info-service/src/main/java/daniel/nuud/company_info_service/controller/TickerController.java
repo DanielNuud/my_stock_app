@@ -1,6 +1,5 @@
 package daniel.nuud.company_info_service.controller;
 
-import daniel.nuud.company_info_service.dto.api.Ticker;
 import daniel.nuud.company_info_service.model.TickerEntity;
 import daniel.nuud.company_info_service.service.TickerService;
 import lombok.RequiredArgsConstructor;
