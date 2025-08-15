@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClient;
 
 import java.time.*;
 import java.util.ArrayList;
@@ -24,7 +23,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class HistoricalService {
 
-    private final RestClient polygonRestClient;
+    private final PolygonClient polygonClient;
 
     private final NotificationClient notificationClient;
 
@@ -59,69 +58,79 @@ public class HistoricalService {
     }
 
     public List<StockBar> getHistoricalStockBar(String ticker, String period, String userKey) {
-
-        Period fromStringToPeriod = Period.valueOf(period.toUpperCase());
-        LocalDateTime fromDate = determinePeriod(fromStringToPeriod).with(LocalTime.MIN);
+        Period p = Period.valueOf(period.toUpperCase());
+        LocalDateTime fromDate = determinePeriod(p).with(LocalTime.MIN);
 
         TimePreset preset = determinePreset(period);
         String multiplier = preset.multiplier();
-        String timespan = preset.timespan();
+        String timespan   = preset.timespan();
 
         try {
             log.info("Fetching stock bar for ticker {}", ticker);
 
-            String uri = String.format(
-                    "/v2/aggs/ticker/%s/range/%s/%s/%s/%s?adjusted=true&sort=asc&limit=1500&apiKey=%s",
-                    ticker, multiplier, timespan, fromDate.toLocalDate(), toNow.toLocalDate(), apiKey
-            );
-
+            String uri = buildAggsUri(ticker, multiplier, timespan, fromDate);
             log.info("Final URI for stock bar request: {}", uri);
-            ApiResponse response = getApiResponse(uri);
+
+            ApiResponse response = polygonClient.getApiResponse(uri);
 
             if (response != null && response.getResults() != null) {
-                List<StockBar> stockBars = response.getResults().stream()
-                        .map(dto -> mapToEntity(ticker, dto))
-                        .collect(Collectors.toCollection(ArrayList::new));
-                log.info("Response raw: {}", response);
-                log.info("Results size: {}", response.getResults().size());
-
-                StockPrice latest = latestPrices.get(ticker);
-
-                if (latest != null) {
-                    stockBars.add(convertToStockBar(latest));
-                }
-
-                notificationClient.sendNotification(
-                        userKey,
-                        "Chart ready",
-                        ticker.toUpperCase() + " (" + period + ") is ready",
-                        "INFO",
-                        "CHART:READY:" + ticker.toUpperCase() + ":" + period
-                );
-
+                List<StockBar> stockBars = toBars(response, ticker);
+                notifyReady(userKey, ticker, period);
                 return stockBars;
-
             } else {
-                notificationClient.sendNotification(
-                        userKey,
-                        "Chart fetch failed",
-                        "Please try again later.",
-                        "ERROR",
-                        "CHART:FAILED:" + ticker.toUpperCase() + ":" + period.toUpperCase()
-                );
+                notifyFailed(userKey, ticker, period, null);
             }
-
         } catch (Exception e) {
+            notifyFailed(userKey, ticker, period, e);
+            log.error("Error while fetching stock bar", e);
+        }
+        return List.of();
+    }
+
+    private String buildAggsUri(String ticker, String multiplier, String span, LocalDateTime fromDate) {
+        return String.format(
+                "/v2/aggs/ticker/%s/range/%s/%s/%s/%s?adjusted=true&sort=asc&limit=1500&apiKey=%s",
+                ticker, multiplier, span, fromDate.toLocalDate(), toNow.toLocalDate(), apiKey
+        );
+    }
+
+    private List<StockBar> toBars(ApiResponse response, String ticker) {
+        List<StockBar> stockBars = response.getResults().stream()
+                .map(dto -> mapToEntity(ticker, dto))
+                .collect(Collectors.toCollection(ArrayList::new));
+
+        log.info("Response raw: {}", response);
+        log.info("Results size: {}", response.getResults().size());
+
+        StockPrice latest = latestPrices.get(ticker);
+        if (latest != null) {
+            stockBars.add(convertToStockBar(latest));
+        }
+        return stockBars;
+    }
+
+    private void notifyReady(String userKey, String ticker, String period) {
+        notificationClient.sendNotification(
+                userKey,
+                "Chart ready",
+                ticker.toUpperCase() + " (" + period + ") is ready",
+                "INFO",
+                "CHART:READY:" + ticker.toUpperCase() + ":" + period
+        );
+    }
+
+    private void notifyFailed(String userKey, String ticker, String period, Exception cause) {
+        try {
             notificationClient.sendNotification(
                     userKey,
                     "Chart fetch failed",
                     "Please try again later.",
                     "ERROR",
-                    "CHART:FAILED:" + ticker.toUpperCase() + ":" + period
+                    "CHART:FAILED:" + ticker.toUpperCase() + ":" + period.toUpperCase()
             );
-            log.error("Error while fetching stock bar", e);
+        } catch (Exception ex) {
+            log.warn("Failed to send failure notification for {} ({}): {}", ticker, period, ex.toString());
         }
-        return List.of();
     }
 
     private StockBar convertToStockBar(StockPrice stockPrice) {
@@ -149,13 +158,6 @@ public class HistoricalService {
             case "ONE_YEAR" -> new TimePreset("1", "week");
             default -> new TimePreset("1", "day"); // fallback
         };
-    }
-
-    private ApiResponse getApiResponse(String uri) {
-        return polygonRestClient.get()
-                .uri(uri)
-                .retrieve()
-                .body(ApiResponse.class);
     }
 
     private LocalDateTime determinePeriod(Period from) {
