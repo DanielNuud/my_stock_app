@@ -27,16 +27,21 @@ public class PolygonClient {
     }
 
     private ApiResponse fallbackNull(String ticker, String apiKey, Throwable ex) {
-        log.warn("Polygon fallback for {}: {}", ticker, ex.toString());
+        log.warn("Polygon fallback for company {}: {}", ticker, ex.toString());
         return null;
     }
 
-    @CircuitBreaker(name = "polygonCompanyCB", fallbackMethod = "fallbackNull")
+    @CircuitBreaker(name = "polygonCompanyCB", fallbackMethod = "fallbackNullTicker")
     @Retry(name = "readSafe")
     public TickerApiResponse getTickerApiResponse(String query, String apiKey) {
         return polygonRestClient.get()
                 .uri("/v3/reference/tickers?market=stocks&search={query}&apiKey={apiKey}", query.toUpperCase(), apiKey)
                 .retrieve()
                 .body(TickerApiResponse.class);
+    }
+
+    private TickerApiResponse fallbackNullTicker(String query, String apiKey, Throwable ex) {
+        log.warn("Polygon fallback for ticker {}: {}", query, ex.toString());
+        return null;
     }
 }

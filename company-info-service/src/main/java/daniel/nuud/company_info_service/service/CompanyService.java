@@ -9,6 +9,7 @@ import io.github.resilience4j.bulkhead.annotation.Bulkhead;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,6 +54,7 @@ public class CompanyService {
         return getFromDb(ticker);
     }
 
+    @Cacheable(value = "companyByTicker", key = "#ticker.toUpperCase()", sync = true)
     @Bulkhead(name = "companyRead", type = Bulkhead.Type.SEMAPHORE)
     @Transactional(readOnly = true, timeout = 2)
     public Company getFromDb(String ticker) {

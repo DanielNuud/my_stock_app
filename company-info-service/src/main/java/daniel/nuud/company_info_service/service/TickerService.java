@@ -9,9 +9,11 @@ import io.github.resilience4j.bulkhead.annotation.Bulkhead;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClient;
+import org.springframework.cache.annotation.Cacheable;
 
 import java.util.List;
 import java.util.Set;
@@ -36,6 +38,7 @@ public class TickerService {
         return false;
     }
 
+    @CacheEvict(value = "tickerSuggest", allEntries = true)
     @Bulkhead(name = "companyWrite", fallbackMethod = "skipRefresh")
     public boolean fetchAndSaveTickers(String query) {
         TickerApiResponse response = polygonClient.getTickerApiResponse(query, apiKey);
@@ -66,6 +69,7 @@ public class TickerService {
                 .toList();
     }
 
+    @Cacheable(value = "tickerSuggest", key = "#query", sync = true)
     @Bulkhead(name = "companyRead", type = Bulkhead.Type.SEMAPHORE)
     @Transactional(readOnly = true, timeout = 2)
     public List<TickerEntity> getFromDB(String query) {
