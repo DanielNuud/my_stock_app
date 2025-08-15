@@ -4,12 +4,12 @@ import daniel.nuud.newsservice.dto.ApiResponse;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
 import java.util.List;
 
-@Service
+@Component
 @RequiredArgsConstructor
 public class PolygonClient {
 
