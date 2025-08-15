@@ -18,12 +18,11 @@ public class PolygonClient {
     @CircuitBreaker(name = "polygonNewsCB", fallbackMethod = "fallbackEmpty")
     @Retry(name = "readSafe")
     public ApiResponse getApiResponse(String ticker, String apiKey) {
-        ApiResponse response = polygonRestClient.get()
+        return polygonRestClient.get()
                 .uri("/v2/reference/news?ticker={ticker}&order=asc&limit=10&sort=published_utc&apiKey={apiKey}",
                         ticker, apiKey)
                 .retrieve()
                 .body(ApiResponse.class);
-        return response;
     }
 
     private ApiResponse fallbackEmpty(String ticker, String apiKey, Throwable ex) {
