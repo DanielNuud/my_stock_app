@@ -108,7 +108,7 @@
 .search-button {
     margin-left: 10px;
     padding: 12px 20px;
-    border-radius: 9999px; /* скругляем */
+    border-radius: 9999px;
     border: none;
     background-color: #3b82f6;
     color: #fff;
@@ -128,14 +128,14 @@
     right: 0;
     background: #1e1e1e;
     border: 1px solid #333;
-    border-radius: 12px; /* сильнее скругляем */
+    border-radius: 12px;
     margin-top: 8px;
     max-height: 320px;
     overflow-y: auto;
     z-index: 100;
     padding: 0;
     list-style: none;
-    width: 100%; /* гарантирует ширину строки */
+    width: 100%; 
 }
 
 .autocomplete-item {
@@ -163,7 +163,7 @@ body {
     margin: 0;
     background-color: #181a1b;
     color: #d3d3d3;
-    padding: 20px;
+    padding: 0;
     font-family: "Segoe UI", sans-serif;
 }
 
@@ -294,20 +294,20 @@ body {
     color: white;
     border: none;
     border-radius: 9999px;
-    text-align: center;          /* Горизонтальное выравнивание */
+    text-align: center;          
     appearance: none;
     font-size: 1rem;
-    line-height: 1.5;            /* Вертикальное выравнивание */
-    height: 44px;                /* Установи фиксированную высоту */
+    line-height: 1.5;           
+    height: 44px;                
     display: flex;
-    align-items: center;         /* Центрирование по вертикали */
-    justify-content: center;     /* Центрирование по горизонтали */
+    align-items: center;         
+    justify-content: center;     
 }
 
 .amount-input {
     width: 120px;
     min-width: 100px;
-    align-items: center;         /* Центрирование по вертикали */
+    align-items: center;
     justify-content: center;
     text-align: center;
 }
@@ -318,4 +318,76 @@ body {
     margin-top: 15px;
     font-size: 1.2rem;
     color: #ffffff;
+}
+
+.topbar {
+  margin-bottom: 12px;
+}
+
+
+/* Унифицированная темная карточка */
+.panel {
+  background: var(--card-bg, #212324);
+  border: 1px solid var(--card-border, #283041);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+/* Заголовок карточки */
+.panel-title {
+  text-align: center;
+  font-weight: 600;
+  font-size: 1.05rem;
+  margin-bottom: 10px;
+}
+
+/* Значение (крупнее) */
+.panel-value {
+  text-align: center;
+  font-size: 1.25rem;
+  color: #ffffff;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+/* Кнопка/селект по центру */
+.panel-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+/* Мета-текст (время обновления) */
+.panel-meta {
+  text-align: center;
+  color: #ffffff;
+  font-size: 0.8rem;
+  margin-top: 8px;
+}
+
+/* Небольшие утилиты */
+.muted { color: #ffffff; }
+
+/* Кнопка и селект под общий стиль (минимально) */
+.btn {
+  border: 1px solid var(--card-border, #283041);
+  background: #2a5bdd;
+  color: #e6eefc;
+  border-radius: 10px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+.btn:hover { background: #202a3a; }
+.btn-sm { padding: 6px 10px; font-size: .9rem; }
+.btn-primary { border-color: #3a7bfd; background: #2a5bdd; }
+.btn-primary:hover { background: #2d63ee; }
+
+.select {
+  width: 100%;
+  max-width: 220px;
+  background: #0f1620;
+  color: #e6eefc;
+  border: 1px solid var(--card-border, #283041);
+  border-radius: 10px;
+  padding: 8px 10px;
 }

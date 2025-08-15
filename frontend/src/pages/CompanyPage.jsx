@@ -157,10 +157,10 @@ const CompanyPage = () => {
         <>
         <TopBar title="My Stock App" />
         
-        <div className="container-fluid">
+        <div className="container-fluid mt-3">
             <div className="row">
                 {/* LEFT SIDE */}
-                <div className="col-md-8 mb-3">
+                <div className="col-md-8 mb-5">
 
                     <div className="company-header">
                         <img src={company.logoUrl || company.iconUrl} alt="Company Logo" />
