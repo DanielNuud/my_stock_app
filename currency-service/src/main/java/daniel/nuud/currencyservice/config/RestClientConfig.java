@@ -1,25 +1,25 @@
 package daniel.nuud.currencyservice.config;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import java.util.Map;
+import java.time.Duration;
 
 @Configuration
 public class RestClientConfig {
 
     @Bean
-    public RestClient restClient(@Value("${freecurrency.api.key}") String apiKey) {
-        return RestClient.builder()
+    public RestClient freecurrencyApiRestClient(RestClient.Builder builder) {
+        var factory = new HttpComponentsClientHttpRequestFactory();
+        factory.setConnectTimeout(Duration.ofMillis(300));
+        factory.setReadTimeout(Duration.ofSeconds(1));
+        return builder
                 .baseUrl("https://api.freecurrencyapi.com")
-                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .defaultUriVariables(Map.of("apiKey", apiKey))
+                .requestFactory(factory)
                 .build();
     }
 

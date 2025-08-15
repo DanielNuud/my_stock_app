@@ -19,31 +19,34 @@ import java.util.Map;
 @Slf4j
 public class CurrencyService {
 
-    private final RestClient restClient;
     private final NotificationClient notifications;
-
-    @Value("${freecurrency.api.key}")
-    private String apiKey;
-
-    @Cacheable(cacheNames = "currency", key = "#p0")
-    public Map<String, String> getCurrencyRates(String currency) {
-        RateResponse response = restClient.get()
-                .uri("/v1/latest?apikey={apikey}&base_currency={base_currency}", apiKey, currency)
-                .retrieve()
-                .body(RateResponse.class);
-
-        if (response == null || response.getRates() == null) {
-            throw new ResourceNotFoundException("Currency \"" + currency + "\" or currency rates not found");
-        }
-
-       return response.getRates();
-    }
+    private final RatesProvider ratesProvider;
 
     public Double convert(String from, String to, Double amount, String userKey) {
-        Map<String, String> rates = getCurrencyRates(from);
-        Double rateTo = Double.parseDouble(rates.get(to));
-        Double result = amount * rateTo;
+        String base = from.toUpperCase();
+        String quote = to.toUpperCase();
 
+        if (base.equals(quote)) {
+            notifySuccess(userKey, base, quote, amount, amount);
+            return amount;
+        }
+
+        Map<String, String> rates = ratesProvider.getRates(base);
+        String raw = rates.get(quote);
+
+        if (raw == null) {
+            throw new ResourceNotFoundException("Rate " + base + "→" + quote + " not found");
+        }
+
+        java.math.BigDecimal res = new java.math.BigDecimal(amount.toString())
+                .multiply(new java.math.BigDecimal(raw));
+
+        double result = res.doubleValue();
+        notifySuccess(userKey, base, quote, amount, result);
+        return result;
+    }
+
+    private void notifySuccess(String userKey, String from, String to, Double amount, Double result) {
         try {
             notifications.sendNotification(
                     userKey,
@@ -53,17 +56,17 @@ public class CurrencyService {
                     "FX:CONVERT:" + from + ":" + to + ":" + amount
             );
         } catch (Exception e) {
-            notifications.sendNotification(
-                    userKey,
-                    "Conversion failed",
-                    "Please check your currency rates and try again.",
-                    "ERROR",
-                    "FX:INVALID:" + epochMinute()
-            );
+            try {
+                notifications.sendNotification(
+                        userKey,
+                        "Conversion failed",
+                        "Please check your currency rates and try again.",
+                        "ERROR",
+                        "FX:INVALID:" + epochMinute()
+                );
+            } catch (Exception ignore) { }
             log.error("Notification convert failed: {}", e.getMessage(), e);
         }
-
-        return result;
     }
 
     private Long epochMinute() {

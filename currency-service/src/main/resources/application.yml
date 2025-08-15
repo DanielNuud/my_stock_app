@@ -1,6 +1,7 @@
 freecurrency:
   api:
     key: fca_live_hs0yPrOObSsKEWaBJoMXsAeK398j4L9L5pl84AY1
+
 server:
   port: 8080
   address: 0.0.0.0
@@ -10,5 +11,45 @@ spring:
     redis:
       host: currency-redis
       port: 6379
-    cache:
-      type: redis
+  cache:
+    type: redis
+    cache-names: currency
+    redis:
+      use-key-prefix: true
+      key-prefix: "fx:"
+      cache-null-values: false
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      freeCurrencyCB:
+        sliding-window-type: TIME_BASED
+        sliding-window-size: 30
+        minimum-number-of-calls: 10
+        slow-call-duration-threshold: 1s
+        slow-call-rate-threshold: 60
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 3
+        recordExceptions:
+          - java.net.SocketTimeoutException
+          - java.io.IOException
+          - org.springframework.web.client.HttpServerErrorException
+        ignoreExceptions:
+          - org.springframework.web.client.HttpClientErrorException
+  retry:
+    instances:
+      readSafe:
+        max-attempts: 3
+        wait-duration: 100ms
+        enable-exponential-backoff: true
+        retry-exceptions:
+          - java.net.SocketTimeoutException
+          - java.io.IOException
+        ignore-exceptions:
+          - org.springframework.web.client.HttpClientErrorException
+  bulkhead:
+    instances:
+      fxRead:
+        max-concurrent-calls: 16
+        max-wait-duration: 0

@@ -13,11 +13,6 @@ public class CurrencyController {
 
     private final CurrencyService currencyService;
 
-    @GetMapping("/{currency}")
-    public Map<String, String> getCurrency(@PathVariable String currency) {
-        return currencyService.getCurrencyRates(currency.toUpperCase());
-    }
-
     @GetMapping("/convert")
     public Double getCurrencyConvert(@RequestParam String from,
                                      @RequestParam String to,
