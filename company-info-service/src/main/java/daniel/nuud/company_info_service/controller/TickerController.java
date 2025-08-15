@@ -5,6 +5,7 @@ import daniel.nuud.company_info_service.model.TickerEntity;
 import daniel.nuud.company_info_service.service.TickerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -21,8 +22,15 @@ public class TickerController {
     private final TickerService tickerService;
 
     @GetMapping("/search")
-    public List<TickerEntity> searchTickers(@RequestParam("query") String query) {
+    public ResponseEntity<List<TickerEntity>> searchTickers(@RequestParam("query") String query) {
         log.info("Searching tickers with query: {}", query);
-        return tickerService.autocomplete(query);
+
+        boolean refreshed = tickerService.fetchAndSaveTickers(query);
+
+        var data = tickerService.getFromDB(query);
+
+        return ResponseEntity.ok()
+                .header("X-Data-Freshness", refreshed ? "fresh" : "stale")
+                .body(data);
     }
 }

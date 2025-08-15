@@ -19,8 +19,12 @@ public class CompanyController {
     @GetMapping("/{ticker}")
     public ResponseEntity<Company> getCompany(@PathVariable String ticker, HttpServletRequest req) {
         log.info("Received GET " + req.getRequestURI());
-        Company company = companyService.fetchCompany(ticker);
-        return ResponseEntity.ok(company);
+        boolean refreshed = companyService.tryRefreshCompany(ticker);
+        Company company = companyService.getFromDb(ticker);
+
+        return ResponseEntity.ok()
+                .header("X-Data-Freshness", refreshed ? "fresh" : "stale")
+                .body(company);
     }
 
 }

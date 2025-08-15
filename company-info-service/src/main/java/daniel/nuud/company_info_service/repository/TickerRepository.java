@@ -5,9 +5,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface TickerRepository extends JpaRepository<TickerEntity, String> {
-    List<TickerEntity> findTop5ByTickerIgnoreCaseContaining(String tickerStart);
-    List<TickerEntity> findTop5ByTickerStartsWithIgnoreCase(String tickerStart);
+    Optional<List<TickerEntity>> findTop5ByTickerStartsWithIgnoreCase(String tickerStart);
 }

@@ -5,56 +5,68 @@ import daniel.nuud.company_info_service.dto.api.Ticket;
 import daniel.nuud.company_info_service.exception.ResourceNotFoundException;
 import daniel.nuud.company_info_service.model.Company;
 import daniel.nuud.company_info_service.repository.CompanyRepository;
+import io.github.resilience4j.bulkhead.annotation.Bulkhead;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClient;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class CompanyService {
 
-    private final RestClient restClient;
-
+    private final PolygonClient polygonClient;
     private final CompanyRepository companyRepository;
+    private final CompanyWriter companyWriter;
 
     @Value("${polygon.api.key}")
     private String apiKey;
 
-    @Cacheable(value = "Company", key = "#ticker.toUpperCase()")
-    public Company fetchCompany(String ticker) {
-
-        log.info(">>> fetchCompany called for {}", ticker);
-
-        Company existingCompany = companyRepository.findByTickerIgnoreCase(ticker);
-
-        if (existingCompany != null) {
-            log.info("Company {} found in database", ticker);
-            return existingCompany;
-        }
-
-        ApiResponse response = restClient.get()
-                .uri("/v3/reference/tickers/{ticker}?apiKey={apiKey}", ticker.toUpperCase(), apiKey)
-                .retrieve()
-                .body(ApiResponse.class);
-
-        if (response == null || response.getResults() == null) {
-            throw new ResourceNotFoundException("Company with ticker: " + ticker + " not found");
-        }
-
-        return getCompany(response);
-
+    private boolean skipRefresh(String ticker, Throwable ex) {
+        log.warn("Skip refresh for {}: {}", ticker, ex.toString());
+        return false;
     }
 
-    public Company getCompany(ApiResponse response) {
+    @Bulkhead(name = "companyWrite", fallbackMethod = "skipRefresh")
+    public boolean tryRefreshCompany(String ticker) {
+//        Company existingCompany = companyRepository.findByTickerIgnoreCase(ticker);
+//
+//        if (existingCompany != null) {
+//            log.info("Company {} found in database", ticker);
+//            return existingCompany;
+//        }
+        ApiResponse response = polygonClient.getApiResponse(ticker, apiKey);
+
+        if (response == null || response.getResults() == null) {
+            return false;
+        }
+
+        Company company = mapToCompany(response, ticker);
+        companyWriter.saveCompany(company);
+        return true;
+    }
+
+    public Company fetchCompany(String ticker) {
+        tryRefreshCompany(ticker);
+        return getFromDb(ticker);
+    }
+
+    @Bulkhead(name = "companyRead", type = Bulkhead.Type.SEMAPHORE)
+    @Transactional(readOnly = true, timeout = 2)
+    public Company getFromDb(String ticker) {
+        var key = ticker.toUpperCase().trim();
+        return companyRepository.findByTickerIgnoreCase(key)
+                .orElseThrow(() -> new ResourceNotFoundException("Company with " + ticker + " not found"));
+    }
+
+    private Company mapToCompany(ApiResponse response, String ticker) {
         Ticket data = response.getResults();
 
         Company company = new Company();
-        company.setTicker(defaultIfNull(data.getTicker(), "Not found"));
+
+        company.setTicker(defaultIfNull(ticker.trim().toUpperCase(), "Not found"));
         company.setName(defaultIfNull(data.getName(), "Not found"));
         company.setDescription(defaultIfNull(data.getDescription(), "Not found"));
         company.setHomepageUrl(defaultIfNull(data.getHomepageUrl(), "Not found"));

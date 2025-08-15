@@ -11,7 +11,6 @@ spring:
     properties:
       hibernate:
         format_sql: true
-        dialect: org.hibernate.dialect.PostgreSQLDialect
   data:
     redis:
       host: company-redis
@@ -29,7 +28,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health, prometheus
+        include: health, metrics, prometheus
   metrics:
     distribution:
       percentiles-histogram:
@@ -38,3 +37,46 @@ management:
     metrics:
       export:
         enabled: true
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      polygonCompanyCB:
+        sliding-window-type: TIME_BASED
+        sliding-window-size: 30
+        minimum-number-of-calls: 10
+        slow-call-duration-threshold: 1s
+        slow-call-rate-threshold: 60
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 3
+        recordExceptions:
+          - java.net.SocketTimeoutException
+          - java.io.IOException
+          - org.springframework.web.client.HttpServerErrorException
+          - org.springframework.web.client.ResourceAccessException
+        ignoreExceptions:
+          - org.springframework.web.client.HttpClientErrorException
+  retry:
+    instances:
+      readSafe:
+        max-attempts: 3
+        wait-duration: 100ms
+        enable-exponential-backoff: true
+        retry-exceptions:
+          - java.net.SocketTimeoutException
+          - java.io.IOException
+          - org.springframework.web.client.ResourceAccessException
+        ignore-exceptions:
+          - org.springframework.web.client.HttpClientErrorException
+
+  bulkhead:
+    instances:
+      companyRead:
+        max-concurrent-calls: 16
+        max-wait-duration:
+          seconds: 0
+      companyWrite:
+        max-concurrent-calls: 4
+        max-wait-duration:
+          seconds: 0

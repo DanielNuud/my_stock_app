@@ -1,9 +1,6 @@
 package daniel.nuud.company_info_service.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serializable;
@@ -19,6 +16,11 @@ public class Company implements Serializable {
     @Id
     @Column(name = "ticker", nullable = false, unique = true)
     private String ticker;
+
+    @PrePersist @PreUpdate
+    void normalize() {
+        if (ticker != null) ticker = ticker.trim().toUpperCase();
+    }
 
     @Column(columnDefinition = "TEXT")
     private String description;

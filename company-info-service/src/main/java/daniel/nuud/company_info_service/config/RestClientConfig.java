@@ -1,25 +1,26 @@
 package daniel.nuud.company_info_service.config;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestClient;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.time.Duration;
+
 @Configuration
-public class WebClientConfig {
+public class RestClientConfig {
 
     @Bean
-    public RestClient polygonWebClient(@Value("${POLYGON_API_KEY}") String apiKey) {
-        return RestClient.builder()
+    public RestClient polygonRestClient(RestClient.Builder builder) {
+        var factory = new HttpComponentsClientHttpRequestFactory();
+        factory.setConnectTimeout(Duration.ofMillis(300));
+        factory.setReadTimeout(Duration.ofSeconds(1));
+        return builder
                 .baseUrl("https://api.polygon.io")
-                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + apiKey)
+                .requestFactory(factory)
                 .build();
     }
 
