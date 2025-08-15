@@ -18,7 +18,6 @@ public class FreeCurrencyClient {
 
     @CircuitBreaker(name = "freeCurrencyCB", fallbackMethod = "fallbackNull")
     @Retry(name = "readSafe")
-    @Bulkhead(name = "fxRead", type = Bulkhead.Type.SEMAPHORE)
     public RateResponse getCurrencyRates(String base, String apiKey) {
         return freecurrencyApiRestClient.get()
                 .uri("/v1/latest?apikey={apikey}&base_currency={base_currency}", apiKey, base)
