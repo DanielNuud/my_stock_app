@@ -2,14 +2,16 @@ package daniel.nuud.newsservice.service;
 
 import daniel.nuud.newsservice.dto.ApiArticle;
 import daniel.nuud.newsservice.dto.ApiResponse;
+import daniel.nuud.newsservice.dto.ArticleDto;
 import daniel.nuud.newsservice.exception.ResourceNotFoundException;
 import daniel.nuud.newsservice.model.Article;
 import daniel.nuud.newsservice.repository.NewsRepository;
+import io.github.resilience4j.bulkhead.annotation.Bulkhead;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClient;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,15 +23,18 @@ import java.util.stream.Collectors;
 @Slf4j
 public class NewsService {
 
-    private final RestClient restClient;
+    private final PolygonClient polygonClient;
 
     private final NewsRepository newsRepository;
 
     @Value("${polygon.api.key}")
     private String apiKey;
 
+    @Bulkhead(name = "newsFetch", type = Bulkhead.Type.SEMAPHORE)
+    @Transactional(timeout = 5)
     public void fetchAndSaveNews(String ticker) {
-        ApiResponse response = getApiResponse(ticker);
+
+        ApiResponse response = polygonClient.getApiResponse(ticker, apiKey);
 
         log.info("Fetching news for ticker: {}", ticker);
 
@@ -73,26 +78,13 @@ public class NewsService {
         }
     }
 
-    private ApiResponse getApiResponse(String ticker) {
-        ApiResponse response = restClient.get()
-                .uri("/v2/reference/news?ticker={ticker}&order=asc&limit=10&sort=published_utc&apiKey={apiKey}",
-                        ticker, apiKey)
-                .retrieve()
-                .body(ApiResponse.class);
-        return response;
-    }
-
-    public List<Article> getNewsByTicker (String ticker) {
-        return newsRepository.findAllByTickersContaining(ticker)
-                .orElseThrow(() -> new ResourceNotFoundException("No news found for ticker " + ticker));
-    }
-
-    public List<Article> getAllNews() {
-        return newsRepository.findAll();
-    }
-
-    public List<Article> getTop5NewsByTicker(String ticker) {
-        return newsRepository.findTop5ByTickersOrderByPublishedUtcDesc(ticker);
+    @Bulkhead(name = "newsRead", type = Bulkhead.Type.SEMAPHORE)
+    @Transactional(readOnly = true, timeout = 2)
+    public List<ArticleDto> getTop5NewsByTicker(String ticker) {
+        return newsRepository.findTop5ByTickersOrderByPublishedUtcDesc(ticker)
+                .stream()
+                .map(ArticleDto::from)
+                .toList();
     }
 
 }

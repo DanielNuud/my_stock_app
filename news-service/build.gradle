@@ -45,6 +45,11 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'io.micrometer:micrometer-registry-prometheus'
+    implementation 'io.github.resilience4j:resilience4j-spring-boot3'
+    implementation "io.github.resilience4j:resilience4j-retry"
+    implementation "org.springframework.boot:spring-boot-starter-aop"
+    implementation platform("io.github.resilience4j:resilience4j-bom:2.2.0")
+    implementation 'org.apache.httpcomponents.client5:httpclient5'
 }
 
 tasks.named('test') {

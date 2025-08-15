@@ -1,5 +1,15 @@
 spring:
+  transaction:
+    default-timeout: 2
   datasource:
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 300
+      leak-detection-threshold: 2000
+      data-source-properties:
+        socketTimeout: 2
+        connectTimeout: 2
     url: jdbc:postgresql://news-db:5432/news_db
     username: postgres
     password: postgres
@@ -9,12 +19,68 @@ spring:
       ddl-auto: update
     show-sql: true
     properties:
+      jakarta.persistence.query.timeout: 2000
+      jakarta.persistence.lock.timeout: 2000
       hibernate:
         format_sql: true
+    open-in-view: false
+
+logging:
+  level:
+    io.github.resilience4j: DEBUG
 
 server:
   port: 8080
   address: 0.0.0.0
+  tomcat:
+    threads:
+      max: 100
+
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      polygonNewsCB:
+        sliding-window-type: TIME_BASED
+        sliding-window-size: 30
+        minimum-number-of-calls: 10
+        slow-call-duration-threshold: 1s
+        slow-call-rate-threshold: 60
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 3
+        recordExceptions:
+          - java.net.SocketTimeoutException
+          - java.io.IOException
+          - org.springframework.web.client.HttpServerErrorException
+          - org.springframework.web.client.ResourceAccessException
+        ignoreExceptions:
+          - org.springframework.web.client.HttpClientErrorException
+  retry:
+    instances:
+      readSafe:
+        max-attempts: 3
+        wait-duration: 100ms
+        enable-exponential-backoff: true
+        retry-exceptions:
+          - java.net.SocketTimeoutException
+          - java.io.IOException
+          - org.springframework.web.client.ResourceAccessException
+        ignore-exceptions:
+          - org.springframework.web.client.HttpClientErrorException
+
+  bulkhead:
+    instances:
+      newsRead:
+        max-concurrent-calls: 16
+        max-wait-duration:
+          seconds: 0
+      newsFetch:
+        max-concurrent-calls: 4
+        max-wait-duration:
+          seconds: 0
+
+
 
 polygon:
   api:
@@ -24,7 +90,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health, prometheus
+        include: health, prometheus, metrics, info
   metrics:
     distribution:
       percentiles-histogram:
@@ -33,3 +99,8 @@ management:
     metrics:
       export:
         enabled: true
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: when_authorized
