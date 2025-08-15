@@ -32,12 +32,12 @@ public class CompanyService {
 
     @Bulkhead(name = "companyWrite", fallbackMethod = "skipRefresh")
     public boolean tryRefreshCompany(String ticker) {
-//        Company existingCompany = companyRepository.findByTickerIgnoreCase(ticker);
-//
-//        if (existingCompany != null) {
-//            log.info("Company {} found in database", ticker);
-//            return existingCompany;
-//        }
+
+        if (companyRepository.existsByTickerIgnoreCase(ticker)) {
+            log.info("Company {} already in DB, skip refresh", ticker);
+            return false;
+        }
+
         ApiResponse response = polygonClient.getApiResponse(ticker, apiKey);
 
         if (response == null || response.getResults() == null) {
