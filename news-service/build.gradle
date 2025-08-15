@@ -34,19 +34,16 @@ bootJar {
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.boot:spring-boot-starter-webflux'
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'com.h2database:h2'
     runtimeOnly 'org.postgresql:postgresql'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'io.projectreactor:reactor-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'io.micrometer:micrometer-registry-prometheus'
     implementation 'io.github.resilience4j:resilience4j-spring-boot3'
-    implementation "io.github.resilience4j:resilience4j-retry"
     implementation "org.springframework.boot:spring-boot-starter-aop"
     implementation platform("io.github.resilience4j:resilience4j-bom:2.2.0")
     implementation 'org.apache.httpcomponents.client5:httpclient5'

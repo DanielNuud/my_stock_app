@@ -24,15 +24,14 @@ import java.util.stream.Collectors;
 public class NewsService {
 
     private final PolygonClient polygonClient;
-
     private final NewsRepository newsRepository;
+    private final ArticleWriter articleWriter;
 
     @Value("${polygon.api.key}")
     private String apiKey;
 
-    @Bulkhead(name = "newsFetch", type = Bulkhead.Type.SEMAPHORE)
-    @Transactional(timeout = 5)
-    public void fetchAndSaveNews(String ticker) {
+    @Bulkhead(name = "newsFetch", type = Bulkhead.Type.SEMAPHORE, fallbackMethod = "skipRefresh")
+    public boolean fetchAndSaveNews(String ticker) {
 
         ApiResponse response = polygonClient.getApiResponse(ticker, apiKey);
 
@@ -46,11 +45,27 @@ public class NewsService {
                 .map(ApiArticle::getId)
                 .toList();
 
+        List<Article> articles = getArticles(ids, response);
+
+        if (!articles.isEmpty()) {
+            articleWriter.saveArticles(articles);
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean skipRefresh(String ticker, Throwable ex) {
+        log.warn("Skip refresh for {}: {}", ticker, ex.toString());
+        return false;
+    }
+
+    private List<Article> getArticles(List<String> ids, ApiResponse response) {
         Set<String> existingIds = newsRepository.findAllById(ids).stream()
                 .map(Article::getId)
                 .collect(Collectors.toSet());
 
-        List<Article> articles = response.getResults().stream()
+        return response.getResults().stream()
                 .filter(apiArt -> !existingIds.contains(apiArt.getId()))
                 .map(apiArt -> {
                     Article article = new Article();
@@ -71,11 +86,6 @@ public class NewsService {
                     return article;
                 })
                 .toList();
-
-
-        if (!articles.isEmpty()) {
-            newsRepository.saveAll(articles);
-        }
     }
 
     @Bulkhead(name = "newsRead", type = Bulkhead.Type.SEMAPHORE)

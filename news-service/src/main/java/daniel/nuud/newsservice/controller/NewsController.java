@@ -2,7 +2,7 @@ package daniel.nuud.newsservice.controller;
 
 import daniel.nuud.newsservice.dto.ArticleDto;
 import daniel.nuud.newsservice.service.NewsService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,15 +10,18 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/news")
+@RequiredArgsConstructor
 public class NewsController {
 
-    @Autowired
-    private NewsService newsService;
+    private final NewsService newsService;
 
     @GetMapping("/{ticker}")
     public ResponseEntity<List<ArticleDto>> fetchNews(@PathVariable String ticker) {
-        newsService.fetchAndSaveNews(ticker);
-        return ResponseEntity.ok(newsService.getTop5NewsByTicker(ticker));
+        boolean refreshed = newsService.fetchAndSaveNews(ticker);
+        List<ArticleDto> data = newsService.getTop5NewsByTicker(ticker);
+        return ResponseEntity.ok()
+                .header("X-Data-Freshness", refreshed ? "fresh" : "stale")
+                .body(data);
     }
 
     @PostMapping("/fetch/{ticker}")
