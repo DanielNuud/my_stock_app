@@ -49,11 +49,6 @@ public class CompanyService {
         return true;
     }
 
-    public Company fetchCompany(String ticker) {
-        tryRefreshCompany(ticker);
-        return getFromDb(ticker);
-    }
-
     @Cacheable(value = "companyByTicker", key = "#ticker.toUpperCase()", sync = true)
     @Bulkhead(name = "companyRead", type = Bulkhead.Type.SEMAPHORE)
     @Transactional(readOnly = true, timeout = 2)
