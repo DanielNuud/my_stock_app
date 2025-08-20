@@ -87,13 +87,6 @@ public class HistoricalService {
         return List.of();
     }
 
-    private String buildAggsUri(String ticker, String multiplier, String span, LocalDateTime fromDate) {
-        return String.format(
-                "/v2/aggs/ticker/%s/range/%s/%s/%s/%s?adjusted=true&sort=asc&limit=1500&apiKey=%s",
-                ticker, multiplier, span, fromDate.toLocalDate(), toNow.toLocalDate(), apiKey
-        );
-    }
-
     private List<StockBar> toBars(ApiResponse response, String ticker) {
         List<StockBar> stockBars = response.getResults().stream()
                 .map(dto -> mapToEntity(ticker, dto))
@@ -107,6 +100,13 @@ public class HistoricalService {
             stockBars.add(convertToStockBar(latest));
         }
         return stockBars;
+    }
+
+    private String buildAggsUri(String ticker, String multiplier, String span, LocalDateTime fromDate) {
+        return String.format(
+                "/v2/aggs/ticker/%s/range/%s/%s/%s/%s?adjusted=true&sort=asc&limit=1500&apiKey=%s",
+                ticker, multiplier, span, fromDate.toLocalDate(), toNow.toLocalDate(), apiKey
+        );
     }
 
     private void notifyReady(String userKey, String ticker, String period) {
