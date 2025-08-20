@@ -56,7 +56,7 @@ const useLiveStockChartData = (ticker, setLatestData) => {
       console.log("Connected to live WebSocket");
       subRef.current = client.subscribe(`/topic/stocks/${ticker}`, (message) => {
         const data = JSON.parse(message.body);
-        setLatestData?.(data); // только прокидываем наружу
+        setLatestData?.(data);
       });
     };
 
