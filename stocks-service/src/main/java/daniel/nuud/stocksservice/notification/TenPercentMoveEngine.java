@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentMap;
 @RequiredArgsConstructor
 public class TenPercentMoveEngine {
 
-    private static final double THRESHOLD = 0.10; // 10%
+    private static final double THRESHOLD = 0.10;
     private final NotificationClient notifications;
     private final Subscription subscriptions;
 
