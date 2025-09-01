@@ -18,7 +18,7 @@ public class CompanyController {
 
     @GetMapping("/{ticker}")
     public ResponseEntity<Company> getCompany(@PathVariable String ticker, HttpServletRequest req) {
-        log.info("Received GET " + req.getRequestURI());
+        log.info("Received GET {}", req.getRequestURI());
         boolean refreshed = companyService.tryRefreshCompany(ticker);
         Company company = companyService.getFromDb(ticker);
 

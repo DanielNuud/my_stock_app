@@ -1,6 +1,5 @@
 package daniel.nuud.notificationservice.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import daniel.nuud.notificationservice.dto.CreateNotificationRequest;
 import daniel.nuud.notificationservice.dto.NotificationResponse;
 import daniel.nuud.notificationservice.model.Level;
