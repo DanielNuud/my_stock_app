@@ -73,3 +73,11 @@ resilience4j:
       polygonHistBH:
         maxConcurrentCalls: 12
         maxWaitDuration: 0
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger
+    operationsSorter: method
+    tagsSorter: alpha

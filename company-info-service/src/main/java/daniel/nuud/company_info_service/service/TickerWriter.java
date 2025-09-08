@@ -3,12 +3,12 @@ package daniel.nuud.company_info_service.service;
 import daniel.nuud.company_info_service.model.TickerEntity;
 import daniel.nuud.company_info_service.repository.TickerRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-@Service
+@Component
 @RequiredArgsConstructor
 public class TickerWriter {
     private final TickerRepository tickerRepository;

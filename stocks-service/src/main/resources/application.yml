@@ -19,3 +19,11 @@ management:
 server:
   port: 8080
   address: 0.0.0.0
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger
+    operationsSorter: method
+    tagsSorter: alpha

@@ -1,5 +1,6 @@
 package daniel.nuud.company_info_service.model;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -11,6 +12,10 @@ import java.io.Serializable;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Schema(
+        name = "Company",
+        description = "Company profile entity identified by stock ticker. "
+)
 public class Company implements Serializable {
 
     @Id

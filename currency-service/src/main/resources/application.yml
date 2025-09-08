@@ -53,3 +53,11 @@ resilience4j:
       fxRead:
         max-concurrent-calls: 16
         max-wait-duration: 0
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger
+    operationsSorter: method
+    tagsSorter: alpha

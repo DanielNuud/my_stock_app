@@ -45,6 +45,34 @@ spring:
           predicates:
               - Path=/api/notifications/**
 
+        - id: company-info-docs
+          uri: http://company-info-service:8080
+          predicates:
+            - Path=/openapi/company-info
+          filters:
+            - RewritePath=/openapi/stocks-service, /api-docs
+
+        - id: news-service-docs
+          uri: http://news-service:8080
+          predicates:
+            - Path=/openapi/news-service
+          filters:
+            - RewritePath=/openapi/stocks-service, /api-docs
+
+        - id: currency-service-docs
+          uri: http://currency-service:8080
+          predicates:
+            - Path=/openapi/currency-service
+          filters:
+            - RewritePath=/openapi/stocks-service, /api-docs
+
+        - id: stocks-service-docs
+          uri: http://stocks-service:8080
+          predicates:
+            - Path=/openapi/stocks-service
+          filters:
+            - RewritePath=/openapi/stocks-service, /api-docs
+
 management:
   endpoints:
     web:
@@ -53,3 +81,16 @@ management:
   endpoint:
     gateway:
       enabled: true
+
+springdoc:
+  swagger-ui:
+    path: /swagger
+    urls:
+      - url: /openapi/company-info
+        name: company-info
+      - url: /openapi/news-service
+        name: news-service
+      - url: /openapi/currency-service
+        name: currency-service
+      - url: /openapi/stocks-service
+        name: stocks-service

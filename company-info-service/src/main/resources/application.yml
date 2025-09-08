@@ -80,3 +80,11 @@ resilience4j:
         max-concurrent-calls: 4
         max-wait-duration:
           seconds: 0
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger
+    operationsSorter: method
+    tagsSorter: alpha

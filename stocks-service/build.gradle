@@ -39,6 +39,7 @@ dependencies {
     implementation "org.springframework.boot:spring-boot-starter-aop"
     implementation platform("io.github.resilience4j:resilience4j-bom:2.2.0")
     implementation 'org.apache.httpcomponents.client5:httpclient5'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.11'
 }
 
 tasks.named('test') {
