@@ -1,9 +1,14 @@
 spring:
-  datasource:
-    url: jdbc:postgresql://company-db:5432/company_info_db
-    username: postgres
-    password: postgres
-    driver-class-name: org.postgresql.Driver
+  mvc:
+    problemdetails:
+      enabled: true
+  application:
+    name: company-info-service
+#  datasource:
+#    url: jdbc:postgresql://company-db:5432/company_info_db
+#    username: postgres
+#    password: postgres
+#    driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
       ddl-auto: create
@@ -17,6 +22,9 @@ spring:
       port: 6379
 
 server:
+  tomcat:
+    mbeanregistry:
+      enabled: true
   port: 8080
   address: 0.0.0.0
 
@@ -24,19 +32,23 @@ polygon:
   api:
     key: ${POLYGON_API_KEY}
 
+
 management:
   endpoints:
     web:
       exposure:
-        include: health, metrics, prometheus
+        include: health, info, metrics, prometheus
+  endpoint:
+    health:
+      show-details: always
   metrics:
     distribution:
       percentiles-histogram:
-        "[http.server.requests]": true
-  prometheus:
-    metrics:
-      export:
-        enabled: true
+        http.server.requests: true
+      slo:
+        "[http.server.requests]": 25ms,50ms,100ms,200ms,400ms,800ms
+    tags:
+      application: ${spring.application.name}
 
 resilience4j:
   circuitbreaker:

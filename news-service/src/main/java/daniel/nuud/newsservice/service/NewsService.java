@@ -88,13 +88,18 @@ public class NewsService {
                 .toList();
     }
 
-    @Bulkhead(name = "newsRead", type = Bulkhead.Type.SEMAPHORE)
-    @Transactional(readOnly = true, timeout = 2)
+    @Bulkhead(name = "newsRead", type = Bulkhead.Type.SEMAPHORE, fallbackMethod = "fallbackTop5")
+    @Transactional(readOnly = true)
     public List<ArticleDto> getTop5NewsByTicker(String ticker) {
         return newsRepository.findTop5ByTickersOrderByPublishedUtcDesc(ticker)
                 .stream()
                 .map(ArticleDto::from)
                 .toList();
+    }
+
+    private List<ArticleDto> fallbackTop5(String ticker, Throwable ex) {
+        log.warn("newsRead fallback for {} -> {}", ticker, ex.toString());
+        return List.of();
     }
 
 }

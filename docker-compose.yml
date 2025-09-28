@@ -173,6 +173,21 @@ services:
     networks:
       - stocknet
 
+  load-tests:
+    image: gradle:8.14.1-jdk17
+    profiles: [ "tests" ]
+    working_dir: /work
+    volumes:
+      - ./load-tests:/work
+    depends_on:
+      - api-gateway
+    command: >
+      ./gradlew gatlingRun
+      -Dgatling.simulationClass=example.NewsRampUp
+      -DBASE_URL=http://api-gateway:8080
+    networks:
+      - stocknet
+
   prometheus:
     image: prom/prometheus
     container_name: prometheus
@@ -181,8 +196,14 @@ services:
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
     restart: unless-stopped
+    depends_on:
+      - api-gateway
+      - company-info-service
+      - currency-service
+      - historical-analytics-service
+      - news-service
     networks:
-      - monitoring
+      - stocknet
 
   grafana:
     image: grafana/grafana
@@ -196,11 +217,38 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=admin
       - GF_SERVER_ROOT_URL=http://localhost:3000
     restart: unless-stopped
+    volumes:
+      - grafana-data:/var/lib/grafana
     networks:
-      - monitoring
+      - stocknet
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    privileged: true
+    command:
+      - --docker_only=false
+        - --containerd
+        - --housekeeping_interval=10s
+        - --store_container_labels=true
+        - --enable_metrics=cpu,memory,network,percpu,disk,process
+    volumes:
+      - /:/rootfs:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /run/containerd/containerd.sock:/run/containerd/containerd.sock:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /var/lib/containerd/:/var/lib/containerd:ro
+      - /sys:/sys:ro
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+    networks:
+      - stocknet
+
+volumes:
+  grafana-data:
 
 networks:
   stocknet:
-
-  monitoring:
     driver: bridge

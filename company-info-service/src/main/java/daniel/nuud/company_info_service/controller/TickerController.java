@@ -30,7 +30,6 @@ public class TickerController {
 
     private final TickerService tickerService;
 
-
     @Operation(
             summary = "Search tickers",
             description = "Find tickers by symbol prefix or company name. " +
