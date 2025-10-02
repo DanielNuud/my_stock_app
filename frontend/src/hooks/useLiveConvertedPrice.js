@@ -8,11 +8,15 @@ const useLiveConvertedPrice = (ticker, currency) => {
   useEffect(() => {
     if (!ticker || !currency) return;
 
-    const client = new Client({
-      brokerURL: "ws://localhost:8080/ws/stocks",
-      reconnectDelay: 5000,
-      debug: (str) => console.log(str),
-    });
+      const scheme = location.protocol === 'https:' ? 'wss' : 'ws';
+      const backendPort = 8080;
+      const wsUrl = `${scheme}://${location.hostname}:${backendPort}/ws/stocks`;
+
+      const client = new Client({
+          brokerURL: wsUrl,          // теперь всегда тот же хост, что и страница
+          reconnectDelay: 5000,
+          debug: str => console.log(str),
+      });
 
     client.onConnect = () => {
       console.log("Connected to converted price WebSocket");

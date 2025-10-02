@@ -64,7 +64,7 @@ const CompanyPage = () => {
         console.log("Subscribing to real-time stock data...");
         const subscribeToLiveStock = async () => {
             try {
-                await fetch(`${import.meta.env.VITE_API_URL}/api/stocks/subscribe/${ticker}`, {
+                await fetch(`/api/stocks/subscribe/${ticker}`, {
                     method: "POST",
                 });
             } catch (error) {
@@ -78,7 +78,7 @@ const CompanyPage = () => {
     useEffect(() => {
         const fetchCompany = async () => {
             try {
-                const response = await fetch(`${import.meta.env.VITE_API_URL}/api/companies/${ticker}`);
+                const response = await fetch(`/api/companies/${ticker}`);
                 if (!response.ok) throw new Error("Company service unavailable");
                 const data = await response.json();
                 setCompany(data);
@@ -90,7 +90,7 @@ const CompanyPage = () => {
 
         const fetchNews = async () => {
             try {
-                const response = await fetch(`${import.meta.env.VITE_API_URL}/api/news/${ticker}`);
+                const response = await fetch(`/api/news/${ticker}`);
                 if (!response.ok) throw new Error("News service unavailable");
                 const data = await response.json();
                 setNews(data);
@@ -113,7 +113,7 @@ const CompanyPage = () => {
         const fetchHistorical = async () => {
             try {
                 const response = await fetch(
-                    `${import.meta.env.VITE_API_URL}/api/historical/${ticker}?period=${period}`
+                    `/api/historical/${ticker}?period=${period}`
                 );
                 if (!response.ok) throw new Error("Historical service unavailable");
                 const data = await response.json();

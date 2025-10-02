@@ -13,7 +13,7 @@ const SearchBar = () => {
                 return;
             }
             try {
-                const response = await fetch(`${import.meta.env.VITE_API_URL}/api/tickers/search?query=${ticker}`);
+                const response = await fetch(`/api/tickers/search?query=${ticker}`);
                 if (response.ok) {
                     const data = await response.json();
                     setSuggestions(data);
