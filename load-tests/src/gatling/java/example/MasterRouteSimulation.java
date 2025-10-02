@@ -17,7 +17,6 @@ public class MasterRouteSimulation extends Simulation {
     HttpProtocolBuilder httpProtocol = http
             .baseUrl(BASE_URL)
             .wsBaseUrl(WS_BASE_URL)
-            .inferHtmlResources()
             .acceptHeader("application/json")
             .contentTypeHeader("application/json")
             .userAgentHeader("Gatling-MasterRoute/Java");
@@ -63,14 +62,14 @@ public class MasterRouteSimulation extends Simulation {
                             )
             )
                     .exec(
-                            http("GET historical")
+                            http("GET historical one month")
                                     .get("/api/historical/#{ticker}")
                                     .queryParam("period", "one_month")
                                     .check(status().is(200))
 
                     )
                     .exec(
-                            http("GET historical")
+                            http("GET historical one year")
                                     .get("/api/historical/#{ticker}")
                                     .queryParam("period", "one_year")
                                     .check(status().is(200))
