@@ -102,8 +102,8 @@ services:
         SPRING_REDIS_HOST: company-redis
         SPRING_REDIS_PORT: 6379
       depends_on:
-          - company-db
-          - company-redis
+        - company-db
+        - company-redis
       ports:
         - "8081:8080"
       networks:
@@ -181,9 +181,18 @@ services:
       - ./load-tests:/work
     depends_on:
       - api-gateway
+    environment:
+      BASE_URL: http://api-gateway:8080
+      WS_BASE_URL: ws://api-gateway:8080
+      START_CONC: "1"
+      TARGET_CONC: "10"
+      RAMP_MIN: "1"
+      HOLD_MIN: "3"
+      RAMPDOWN_SEC: "60"
     command: >
       ./gradlew gatlingRun
-      -Dgatling.simulationClass=example.NewsRampUp
+      -Dgatling.simulationClass=example.MasterRouteSimulation
+      -DWS_BASE_URL=ws://api-gateway:8080
       -DBASE_URL=http://api-gateway:8080
     networks:
       - stocknet
@@ -245,6 +254,51 @@ services:
     restart: unless-stopped
     networks:
       - stocknet
+
+
+#  wiremock:
+#    container_name: wiremock
+#    profiles: [ "perf" ]
+#    image: wiremock/wiremock:latest
+#    entrypoint: [ "/docker-entrypoint.sh",
+#                  "--global-response-templating",
+#                  "--verbose",
+#                  "--disable-gzip" ]
+#    volumes:
+#      - ./mocks/wiremock/__files:/home/wiremock/__files
+#      - ./mocks/wiremock/mappings:/home/wiremock/mappings
+#    networks:
+#      - stocknet
+#
+#  wiremock-recorder:
+#    container_name: wiremock-recorder
+#    profiles: [ "perf","record" ]
+#    image: wiremock/wiremock:latest
+#    entrypoint: ["/docker-entrypoint.sh", "--verbose"]
+#    volumes:
+#      - ./mocks/recording:/home/wiremock
+#    networks:
+#      stocknet:
+#        aliases:
+#          - wiremock
+#
+#  ws-mock:
+#    container_name: ws-mock
+#    profiles: [ "perf" ]
+#    image: node:20-alpine
+#    working_dir: /app
+#    command: [ "node","ws-mock.js" ]
+#    volumes:
+#      - ./ws-mock:/app
+#      - ./ws-data:/app/ws-data
+#    ports: [ "9090:9090" ]
+#    healthcheck:
+#      test: [ "CMD", "wget", "-qO-", "http://localhost:9090" ]
+#      interval: 10s
+#      timeout: 3s
+#      retries: 10
+#    networks:
+#      - stocknet
 
 volumes:
   grafana-data:

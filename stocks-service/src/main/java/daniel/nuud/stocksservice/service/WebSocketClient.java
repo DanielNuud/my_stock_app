@@ -81,6 +81,7 @@ public class WebSocketClient {
                 }
                 try {
                     messageProcessor.process(text);
+                    log.info("Message processed: " + text);
                 } catch (Exception e) {
                     log.warn("Failed to process message: {}", shorten(text), e);
                 }
