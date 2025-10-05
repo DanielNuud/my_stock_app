@@ -23,6 +23,7 @@ import java.util.List;
 public class StocksController {
 
     private final StocksPriceService stockPriceService;
+
     private final WebSocketClient wsClient;
     private final Subscription subscriptions;
 

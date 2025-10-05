@@ -101,6 +101,7 @@ services:
         POLYGON_API_KEY: V4_aPjfLf3uRm1v8EO3SRFvJfOM4WtDp
         SPRING_REDIS_HOST: company-redis
         SPRING_REDIS_PORT: 6379
+        SPRING_PROFILES_ACTIVE: mock
       depends_on:
         - company-db
         - company-redis
@@ -117,6 +118,7 @@ services:
         SPRING_DATASOURCE_USERNAME: postgres
         SPRING_DATASOURCE_PASSWORD: postgres
         POLYGON_API_KEY: V4_aPjfLf3uRm1v8EO3SRFvJfOM4WtDp
+        SPRING_PROFILES_ACTIVE: mock
       depends_on:
         - news-db
       ports:
@@ -131,6 +133,7 @@ services:
       - "8083:8080"
     environment:
       SPRING_REDIS_HOST: currency-redis
+      SPRING_PROFILES_ACTIVE: mock
     depends_on:
       - currency-redis
     networks:
@@ -144,6 +147,7 @@ services:
         SPRING_DATASOURCE_USERNAME: postgres
         SPRING_DATASOURCE_PASSWORD: postgres
         POLYGON_API_KEY: V4_aPjfLf3uRm1v8EO3SRFvJfOM4WtDp
+        SPRING_PROFILES_ACTIVE: mock
       depends_on:
         - historical-db
       ports:
@@ -158,6 +162,9 @@ services:
         - "8085:8080"
       environment:
         POLYGON_API_KEY: V4_aPjfLf3uRm1v8EO3SRFvJfOM4WtDp
+        SPRING_PROFILES_ACTIVE: ws-mock
+        STOCKS_WS_MOCK: "true"
+        MOCK_WS_PERIOD_MS: "1000"
       depends_on:
         - historical-analytics-service
       networks:
@@ -184,10 +191,10 @@ services:
     environment:
       BASE_URL: http://api-gateway:8080
       WS_BASE_URL: ws://api-gateway:8080
-      START_CONC: "1"
-      TARGET_CONC: "10"
-      RAMP_MIN: "1"
-      HOLD_MIN: "3"
+      START_CONC: "10"
+      TARGET_CONC: "100"
+      RAMP_MIN: "10"
+      HOLD_MIN: "15"
       RAMPDOWN_SEC: "60"
     command: >
       ./gradlew gatlingRun
@@ -236,40 +243,42 @@ services:
     container_name: cadvisor
     privileged: true
     command:
-      - --docker_only=false
-        - --containerd
-        - --housekeeping_interval=10s
-        - --store_container_labels=true
-        - --enable_metrics=cpu,memory,network,percpu,disk,process
+      - --housekeeping_interval=10s
+      - --store_container_labels=true
+      - --event_storage_event_limit=default=0
+      - --event_storage_age_limit=default=0
     volumes:
       - /:/rootfs:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /run/containerd/containerd.sock:/run/containerd/containerd.sock:ro
-      - /var/lib/docker/:/var/lib/docker:ro
-      - /var/lib/containerd/:/var/lib/containerd:ro
+      - /var/run:/var/run:ro
       - /sys:/sys:ro
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
     depends_on:
       - prometheus
     restart: unless-stopped
+    devices:
+      - /dev/kmsg
+    ports:
+      - "8090:8080"
     networks:
       - stocknet
 
 
-#  wiremock:
-#    container_name: wiremock
-#    profiles: [ "perf" ]
-#    image: wiremock/wiremock:latest
-#    entrypoint: [ "/docker-entrypoint.sh",
-#                  "--global-response-templating",
-#                  "--verbose",
-#                  "--disable-gzip" ]
-#    volumes:
-#      - ./mocks/wiremock/__files:/home/wiremock/__files
-#      - ./mocks/wiremock/mappings:/home/wiremock/mappings
-#    networks:
-#      - stocknet
-#
+  wiremock:
+    container_name: wiremock
+    profiles: [ "tests" ]
+    image: wiremock/wiremock:latest
+    entrypoint: [ "/docker-entrypoint.sh",
+                  "--global-response-templating",
+                  "--verbose",
+                  "--disable-gzip" ]
+    volumes:
+      - ./mocks/wiremock:/home/wiremock
+    ports:
+      - "8089:8080"
+    networks:
+      - stocknet
+
 #  wiremock-recorder:
 #    container_name: wiremock-recorder
 #    profiles: [ "perf","record" ]

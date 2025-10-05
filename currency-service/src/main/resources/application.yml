@@ -2,6 +2,10 @@ freecurrency:
   api:
     key: fca_live_hs0yPrOObSsKEWaBJoMXsAeK398j4L9L5pl84AY1
 
+external:
+  polygon:
+    base-url: https://api.freecurrencyapi.com
+
 server:
   tomcat:
     mbeanregistry:

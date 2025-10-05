@@ -1,12 +1,10 @@
 package daniel.nuud.stocksservice.service;
 
-import daniel.nuud.stocksservice.dto.ConvertedPrice;
 import daniel.nuud.stocksservice.dto.StockPriceDto;
 import daniel.nuud.stocksservice.model.StockPrice;
 import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;

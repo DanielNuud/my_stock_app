@@ -22,6 +22,7 @@ public class PolygonClient {
     @Bulkhead(name = "polygonAggsBH", type = Bulkhead.Type.SEMAPHORE)
     @RateLimiter(name = "polygonAggsRate")
     public ApiResponse getApiResponse(String uri) {
+        log.info(uri);
         return polygonRestClient.get()
                 .uri(uri)
                 .retrieve()

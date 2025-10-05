@@ -14,7 +14,7 @@ public class WsSubscriptions {
     private final Queue<String> pending = new ConcurrentLinkedQueue<>();
 
     public void addTicker(String ticker) {
-        String ch = "AM." + ticker.toUpperCase();
+        String ch = "A." + ticker.toUpperCase();
         channels.add(ch);
         pending.add(ch);
     }

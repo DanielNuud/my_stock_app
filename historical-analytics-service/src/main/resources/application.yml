@@ -1,3 +1,7 @@
+external:
+  polygon:
+    base-url: https://api.polygon.io
+
 polygon:
   api:
     key: ${POLYGON_API_KEY}

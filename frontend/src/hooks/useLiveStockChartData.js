@@ -51,7 +51,7 @@ const useLiveStockChartData = (ticker, setLatestData) => {
       const wsUrl = `${scheme}://${location.hostname}:${backendPort}/ws/stocks`;
 
       const client = new Client({
-          brokerURL: wsUrl,          // теперь всегда тот же хост, что и страница
+          brokerURL: wsUrl,
           reconnectDelay: 5000,
           debug: str => console.log(str),
       });

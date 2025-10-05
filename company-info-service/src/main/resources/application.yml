@@ -8,11 +8,11 @@ spring:
       enabled: true
   application:
     name: company-info-service
-  datasource:
-    url: jdbc:postgresql://company-db:5432/company_info_db
-    username: postgres
-    password: postgres
-    driver-class-name: org.postgresql.Driver
+#  datasource:
+#    url: jdbc:postgresql://company-db:5432/company_info_db
+#    username: postgres
+#    password: postgres
+#    driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
       ddl-auto: create
@@ -59,25 +59,25 @@ resilience4j:
     instances:
       polygonCompanyCB:
         sliding-window-type: TIME_BASED
-        sliding-window-size: 30
-        minimum-number-of-calls: 10
-        slow-call-duration-threshold: 1s
-        slow-call-rate-threshold: 60
+        sliding-window-size: 60
+        minimum-number-of-calls: 50
+        slow-call-duration-threshold: 2s
+        slow-call-rate-threshold: 70
         failure-rate-threshold: 50
         wait-duration-in-open-state: 10s
-        permitted-number-of-calls-in-half-open-state: 3
+        permitted-number-of-calls-in-half-open-state: 5
         recordExceptions:
-          - java.net.SocketTimeoutException
           - java.io.IOException
           - org.springframework.web.client.HttpServerErrorException
           - org.springframework.web.client.ResourceAccessException
         ignoreExceptions:
           - org.springframework.web.client.HttpClientErrorException
+          - java.util.concurrent.TimeoutException
   retry:
     instances:
       readSafe:
-        max-attempts: 3
-        wait-duration: 100ms
+        max-attempts: 2
+        wait-duration: 150ms
         enable-exponential-backoff: true
         retry-exceptions:
           - java.net.SocketTimeoutException
@@ -85,15 +85,16 @@ resilience4j:
           - org.springframework.web.client.ResourceAccessException
         ignore-exceptions:
           - org.springframework.web.client.HttpClientErrorException
+          - java.util.concurrent.TimeoutException
 
   bulkhead:
     instances:
       companyRead:
-        max-concurrent-calls: 16
+        max-concurrent-calls: 50
         max-wait-duration:
           seconds: 0
       companyWrite:
-        max-concurrent-calls: 4
+        max-concurrent-calls: 30
         max-wait-duration:
           seconds: 0
 

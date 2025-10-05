@@ -27,6 +27,10 @@ server:
   tomcat:
     mbeanregistry:
       enabled: true
+    max-connections: 10000
+    threads:
+      max: 400
+    accept-count: 1000
   port: 8080
   address: 0.0.0.0
 

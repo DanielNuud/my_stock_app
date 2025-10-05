@@ -11,8 +11,14 @@ import okhttp3.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -30,6 +36,15 @@ public class WebSocketClient {
     private final PolygonMessageProcessor messageProcessor;
     private final WsSubscriptions subscriptions;
     private final ExponentialBackoff backoff;
+
+    private final Set<String> activeTickers =
+            Collections.newSetFromMap(new ConcurrentHashMap<>());
+
+    @Value("${stocks.ws.mock:false}")
+    private boolean mockMode;
+
+    private final Random rnd = new Random();
+    private final Map<String, Double> last = new ConcurrentHashMap<>();
 
     private final ScheduledExecutorService scheduler =
             Executors.newSingleThreadScheduledExecutor(r -> {
@@ -55,13 +70,34 @@ public class WebSocketClient {
     }
 
     public void subscribeTo(String ticker) {
+        String t = ticker.toUpperCase();
+
+        if (mockMode) {
+            activeTickers.add(t);
+            return;
+        }
+
         subscriptions.addTicker(ticker);
         if (webSocket != null) {
             subscriptions.flush(webSocket);
         }
     }
 
+    public void unsubscribeFrom(String ticker) {
+        String t = ticker.toUpperCase();
+
+        if (mockMode) {
+            activeTickers.remove(t);
+            return;
+        }
+    }
+
     private void open() {
+        if (mockMode) {
+            log.info("WS in MOCK mode: skip real provider connect");
+            return;
+        }
+
         Request request = new Request.Builder()
                 .url("wss://delayed.polygon.io/stocks")
                 .build();
@@ -128,6 +164,38 @@ public class WebSocketClient {
         long delay = backoff.nextDelayMs();
         log.info("Scheduling reconnect in {} ms", delay);
         scheduler.schedule(this::open, delay, TimeUnit.MILLISECONDS);
+    }
+
+    @Scheduled(fixedDelayString = "${mock.ws.period-ms:1000}")
+    public void mockTick() {
+        if (!mockMode || activeTickers.isEmpty()) return;
+
+        long now = System.currentTimeMillis();
+        StringBuilder sb = new StringBuilder(256).append('[');
+        boolean first = true;
+        for (String t : activeTickers) {
+            double prev = last.getOrDefault(t, 120 + rnd.nextDouble() * 80);
+            double next = Math.max(1.0, prev + (rnd.nextDouble() - 0.5) * 1.8);
+            last.put(t, next);
+
+            if (!first) sb.append(',');
+            first = false;
+            sb.append('{')
+                    .append("\"ev\":\"AM\",")
+                    .append("\"sym\":\"").append(t).append("\",")
+                    .append("\"c\":").append(String.format(java.util.Locale.US, "%.2f", next)).append(',')
+                    .append("\"s\":").append(now - 60_000).append(',')
+                    .append("\"e\":").append(now)
+                    .append('}');
+        }
+        sb.append(']');
+
+        String json = sb.toString();
+        try {
+            messageProcessor.process(json);
+        } catch (Exception e) {
+            log.warn("MOCK tick process failed: {}", e.toString());
+        }
     }
 
     private String shorten(String s) {

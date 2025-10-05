@@ -50,13 +50,13 @@ resilience4j:
     instances:
       polygonNewsCB:
         sliding-window-type: TIME_BASED
-        sliding-window-size: 30
-        minimum-number-of-calls: 10
+        sliding-window-size: 60
+        minimum-number-of-calls: 50
         slow-call-duration-threshold: 2s
-        slow-call-rate-threshold: 60
+        slow-call-rate-threshold: 70
         failure-rate-threshold: 50
         wait-duration-in-open-state: 10s
-        permitted-number-of-calls-in-half-open-state: 3
+        permitted-number-of-calls-in-half-open-state: 5
         recordExceptions:
           - java.net.SocketTimeoutException
           - java.io.IOException
