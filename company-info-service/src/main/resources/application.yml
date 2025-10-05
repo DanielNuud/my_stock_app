@@ -8,11 +8,11 @@ spring:
       enabled: true
   application:
     name: company-info-service
-#  datasource:
-#    url: jdbc:postgresql://company-db:5432/company_info_db
-#    username: postgres
-#    password: postgres
-#    driver-class-name: org.postgresql.Driver
+  datasource:
+    url: jdbc:postgresql://company-db:5432/company_info_db
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
       ddl-auto: create
