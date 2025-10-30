@@ -191,11 +191,11 @@ services:
     environment:
       BASE_URL: http://api-gateway:8080
       WS_BASE_URL: ws://api-gateway:8080
-      START_CONC: "10"
-      TARGET_CONC: "100"
-      RAMP_MIN: "10"
-      HOLD_MIN: "15"
-      RAMPDOWN_SEC: "60"
+#      START_CONC: "10"
+#      TARGET_CONC: "300"
+#      RAMP_MIN: "10"
+#      HOLD_MIN: "15"
+#      RAMPDOWN_SEC: "60"
     command: >
       ./gradlew gatlingRun
       -Dgatling.simulationClass=example.MasterRouteSimulation
@@ -245,6 +245,7 @@ services:
     command:
       - --housekeeping_interval=10s
       - --store_container_labels=true
+      - --docker_only=true
       - --event_storage_event_limit=default=0
       - --event_storage_age_limit=default=0
     volumes:
@@ -252,6 +253,7 @@ services:
       - /var/run:/var/run:ro
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
+      - /mnt/wsl/docker-desktop-data/data/docker:/var/lib/docker:ro
       - /dev/disk/:/dev/disk:ro
     depends_on:
       - prometheus
@@ -262,7 +264,6 @@ services:
       - "8090:8080"
     networks:
       - stocknet
-
 
   wiremock:
     container_name: wiremock

@@ -90,7 +90,7 @@ resilience4j:
   bulkhead:
     instances:
       companyRead:
-        max-concurrent-calls: 50
+        max-concurrent-calls: 128
         max-wait-duration:
           seconds: 0
       companyWrite:
