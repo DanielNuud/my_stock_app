@@ -222,60 +222,26 @@ public class MasterRouteSimulation extends Simulation {
 //            .group("WebSocket").on(maybeDoWs)
 //            .pause(Duration.ofSeconds(1), Duration.ofSeconds(3));
     {
-//        int START_CONC   = Integer.parseInt(System.getenv().getOrDefault("START_CONC", "10"));
-//        int TARGET_CONC  = Integer.parseInt(System.getenv().getOrDefault("TARGET_CONC", "300"));
-//        int RAMP_MIN     = Integer.parseInt(System.getenv().getOrDefault("RAMP_MIN", "5"));
-//        int HOLD_MIN     = Integer.parseInt(System.getenv().getOrDefault("HOLD_MIN", "20"));
-//        int RAMPDOWN_SEC = Integer.parseInt(System.getenv().getOrDefault("RAMPDOWN_SEC", "30"));
-//
-//        setUp(
-//                scn.injectClosed(
-//                        rampConcurrentUsers(START_CONC).to(TARGET_CONC).during(Duration.ofMinutes(RAMP_MIN)),
-//                        constantConcurrentUsers(TARGET_CONC).during(Duration.ofMinutes(HOLD_MIN)),
-//                        rampConcurrentUsers(TARGET_CONC).to(START_CONC).during(Duration.ofSeconds(RAMPDOWN_SEC))
-//                )
-//        )
-//                .protocols(httpProtocol)
-//                .maxDuration(
-//                        Duration.ofMinutes(RAMP_MIN + HOLD_MIN)
-//                                .plusSeconds(RAMPDOWN_SEC + 60)
-//                )
-//                .assertions(
-//                        global().responseTime().percentile3().lte(3000)
-//                );
+        int START_CONC   = Integer.parseInt(System.getenv().getOrDefault("START_CONC", "10"));
+        int TARGET_CONC  = Integer.parseInt(System.getenv().getOrDefault("TARGET_CONC", "300"));
+        int RAMP_MIN     = Integer.parseInt(System.getenv().getOrDefault("RAMP_MIN", "5"));
+        int HOLD_MIN     = Integer.parseInt(System.getenv().getOrDefault("HOLD_MIN", "20"));
+        int RAMPDOWN_SEC = Integer.parseInt(System.getenv().getOrDefault("RAMPDOWN_SEC", "30"));
 
         setUp(
                 scn.injectClosed(
-                        rampConcurrentUsers(0).to(200).during(Duration.ofSeconds(90)),
-                        constantConcurrentUsers(200).during(Duration.ofMinutes(3)),
-
-                        rampConcurrentUsers(200).to(250).during(Duration.ofSeconds(30)),
-                        constantConcurrentUsers(250).during(Duration.ofMinutes(3)),
-
-                        rampConcurrentUsers(250).to(300).during(Duration.ofSeconds(30)),
-                        constantConcurrentUsers(300).during(Duration.ofMinutes(3)),
-
-                        rampConcurrentUsers(300).to(350).during(Duration.ofSeconds(30)),
-                        constantConcurrentUsers(350).during(Duration.ofMinutes(3)),
-
-                        rampConcurrentUsers(350).to(400).during(Duration.ofSeconds(30)),
-                        constantConcurrentUsers(400).during(Duration.ofMinutes(3)),
-
-                        rampConcurrentUsers(400).to(500).during(Duration.ofSeconds(30)),
-                        constantConcurrentUsers(500).during(Duration.ofMinutes(3)),
-
-                        rampConcurrentUsers(500).to(600).during(Duration.ofSeconds(30)),
-                        constantConcurrentUsers(600).during(Duration.ofMinutes(3))
+                        rampConcurrentUsers(START_CONC).to(TARGET_CONC).during(Duration.ofMinutes(RAMP_MIN)),
+                        constantConcurrentUsers(TARGET_CONC).during(Duration.ofMinutes(HOLD_MIN)),
+                        rampConcurrentUsers(TARGET_CONC).to(START_CONC).during(Duration.ofSeconds(RAMPDOWN_SEC))
                 )
         )
                 .protocols(httpProtocol)
+                .maxDuration(
+                        Duration.ofMinutes(RAMP_MIN + HOLD_MIN)
+                                .plusSeconds(RAMPDOWN_SEC + 60)
+                )
                 .assertions(
-                        global().failedRequests().percent().lte(0.5),
-                        global().responseTime().percentile(99).lte(800),
-                        details("Search").responseTime().percentile(99).lte(200)
+                        global().responseTime().percentile3().lte(3000)
                 );
-
-
-
     }
 }

@@ -188,14 +188,21 @@ services:
       - ./load-tests:/work
     depends_on:
       - api-gateway
+    sysctls:
+      net.ipv4.ip_local_port_range: "10000 65535"
+      net.ipv4.tcp_tw_reuse: "1"
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
     environment:
       BASE_URL: http://api-gateway:8080
       WS_BASE_URL: ws://api-gateway:8080
-#      START_CONC: "10"
-#      TARGET_CONC: "300"
-#      RAMP_MIN: "10"
-#      HOLD_MIN: "15"
-#      RAMPDOWN_SEC: "60"
+      START_CONC: "10"
+      TARGET_CONC: "300"
+      RAMP_MIN: "10"
+      HOLD_MIN: "15"
+      RAMPDOWN_SEC: "60"
     command: >
       ./gradlew gatlingRun
       -Dgatling.simulationClass=example.MasterRouteSimulation
