@@ -97,6 +97,10 @@ resilience4j:
         max-concurrent-calls: 30
         max-wait-duration:
           seconds: 0
+      companySearch:
+        max-concurrent-calls: 256
+        max-wait-duration:
+          seconds: 0
 
 springdoc:
   api-docs:

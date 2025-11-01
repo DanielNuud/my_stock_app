@@ -128,7 +128,7 @@ public class MasterRouteSimulation extends Simulation {
                     .exec(
                             ws("STOMP CONNECT")
                                     .sendText(STOMP_CONNECT)
-                                    .await(10)
+                                    .await(12)
                                     .on(
                                             ws.checkTextMessage("CONNECTED")
                                                     .matching(regex("(?s)^CONNECTED\\b.*"))
@@ -145,7 +145,7 @@ public class MasterRouteSimulation extends Simulation {
                     .exec(
                             ws("STOMP SUBSCRIBE /topic/stocks/#{ticker}")
                                     .sendText(session -> stompSubscribeFrame(session.getString("subId"), session.getString("ticker")))
-                                    .await(15)
+                                    .await(10)
                                     .on(
                                             ws.checkTextMessage("MESSAGE")
                                                     .matching(regex("(?s)^MESSAGE\\b.*destination:/topic/stocks/#{ticker}.*"))
@@ -221,7 +221,7 @@ public class MasterRouteSimulation extends Simulation {
             .pause(Duration.ofMillis(200), Duration.ofMillis(500))
 
             .group("WebSocket").on(maybeDoWs)
-            .pause(Duration.ofSeconds(1), Duration.ofSeconds(3));
+            .pause(Duration.ofMillis(300), Duration.ofMillis(800));
     {
         int START_CONC   = Integer.parseInt(System.getenv().getOrDefault("START_CONC", "10"));
         int TARGET_CONC  = Integer.parseInt(System.getenv().getOrDefault("TARGET_CONC", "300"));

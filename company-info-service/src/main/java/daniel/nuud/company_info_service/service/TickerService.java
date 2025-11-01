@@ -39,7 +39,7 @@ public class TickerService {
     }
 
     @CacheEvict(value = "tickerSuggest", allEntries = true)
-    @Bulkhead(name = "companyWrite", fallbackMethod = "skipRefresh")
+    @Bulkhead(name = "companySearch", fallbackMethod = "skipRefresh")
     public boolean fetchAndSaveTickers(String query) {
         TickerApiResponse response = polygonClient.getTickerApiResponse(query, apiKey);
 
@@ -70,7 +70,7 @@ public class TickerService {
     }
 
     @Cacheable(value = "tickerSuggest", key = "#query", sync = true)
-    @Bulkhead(name = "companyRead", type = Bulkhead.Type.SEMAPHORE)
+    @Bulkhead(name = "companySearch", type = Bulkhead.Type.SEMAPHORE)
     @Transactional(readOnly = true, timeout = 2)
     public List<TickerEntity> getFromDB(String query) {
         return tickerRepository.findTop5ByTickerStartsWithIgnoreCase(query)

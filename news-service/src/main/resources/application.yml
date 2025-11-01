@@ -3,30 +3,15 @@ external:
     base-url: https://api.polygon.io
 
 spring:
-  transaction:
-    default-timeout: 2
   datasource:
-    hikari:
-      maximum-pool-size: 20
-      minimum-idle: 5
-      connection-timeout: 300
-      leak-detection-threshold: 2000
-      data-source-properties:
-        socketTimeout: 2
-        connectTimeout: 2
     url: jdbc:postgresql://news-db:5432/news_db
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     show-sql: true
-    properties:
-      jakarta.persistence.query.timeout: 2000
-      jakarta.persistence.lock.timeout: 2000
-      hibernate:
-        format_sql: true
     open-in-view: false
   application:
     name: news-service
