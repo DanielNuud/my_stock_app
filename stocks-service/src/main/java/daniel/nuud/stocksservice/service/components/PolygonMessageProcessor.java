@@ -23,7 +23,7 @@ public class PolygonMessageProcessor {
             JSONObject json = arr.getJSONObject(i);
             String ev = json.optString("ev", "");
 
-            if ("A".equals(ev)) {
+            if ("A".equals(ev) || "AM".equals(ev)) {
 
                 String ticker = json.getString("sym");
                 double close = json.getDouble("c");
@@ -31,7 +31,7 @@ public class PolygonMessageProcessor {
 
                 stockPriceService.save(ticker, close, ts);
 
-                tenPercentMoveEngine.onPrice(new StockPrice(ticker, close, ts));
+//                tenPercentMoveEngine.onPrice(new StockPrice(ticker, close, ts));
 
             } else if ("status".equals(ev)) {
 

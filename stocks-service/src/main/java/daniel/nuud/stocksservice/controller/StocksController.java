@@ -54,8 +54,12 @@ public class StocksController {
             )
             @RequestHeader(value = "X-User-Key", defaultValue = "guest", required = false) String userKey
     ) {
-        subscriptions.subscribe(userKey, ticker);
-        wsClient.subscribeTo(ticker.toUpperCase());
+        boolean first = subscriptions.subscribe(userKey, ticker);
+
+        if (first) {
+            wsClient.subscribeTo(ticker.toUpperCase());
+        }
+
         return "Subscribed to ticker: " + ticker.toUpperCase();
     }
 
@@ -81,7 +85,12 @@ public class StocksController {
             )
             @RequestHeader(value = "X-User-Key", defaultValue = "guest", required = false) String userKey
     ) {
-        subscriptions.unsubscribe(userKey, ticker);
+        boolean last = subscriptions.unsubscribe(userKey, ticker);
+
+        if (last) {
+            wsClient.unsubscribeFrom(ticker.toUpperCase());
+        }
+
         return "Unsubscribed from ticker: " + ticker.toUpperCase();
     }
 }

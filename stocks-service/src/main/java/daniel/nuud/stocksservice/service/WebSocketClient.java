@@ -75,6 +75,7 @@ public class WebSocketClient {
 
         if (mockMode) {
             activeTickers.add(t);
+            log.info("Subscribing to ticker " + t);
             return;
         }
 
@@ -89,7 +90,7 @@ public class WebSocketClient {
 
         if (mockMode) {
             activeTickers.remove(t);
-            return;
+            log.info("Unsubscribing ticker " + t);
         }
     }
 
@@ -169,7 +170,14 @@ public class WebSocketClient {
 
     @Scheduled(fixedDelayString = "${mock.ws.period-ms:1000}")
     public void mockTick() {
-        if (!mockMode || activeTickers.isEmpty()) return;
+        if (!mockMode) {
+            return;
+        }
+
+        if (activeTickers.isEmpty()) {
+            log.debug("MOCK WS: no active tickers yet");
+            return;
+        }
 
         long now = System.currentTimeMillis();
         StringBuilder sb = new StringBuilder(256).append('[');
@@ -182,7 +190,7 @@ public class WebSocketClient {
             if (!first) sb.append(',');
             first = false;
             sb.append('{')
-                    .append("\"ev\":\"AM\",")
+                    .append("\"ev\":\"A\",")
                     .append("\"sym\":\"").append(t).append("\",")
                     .append("\"c\":").append(String.format(java.util.Locale.US, "%.2f", next)).append(',')
                     .append("\"s\":").append(now - 60_000).append(',')
@@ -192,6 +200,7 @@ public class WebSocketClient {
         sb.append(']');
 
         String json = sb.toString();
+        log.debug("MOCK WS send: {}", json);
         try {
             messageProcessor.process(json);
         } catch (Exception e) {

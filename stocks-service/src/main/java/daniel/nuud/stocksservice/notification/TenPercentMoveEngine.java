@@ -18,37 +18,37 @@ public class TenPercentMoveEngine {
 
     private final ConcurrentMap<String, Double> anchor = new ConcurrentHashMap<>();
 
-    public void onPrice(StockPrice p) {
-        String ticker = p.getTicker().toUpperCase();
-        double curr = p.getPrice();
-        if (!Double.isFinite(curr) || curr <= 0) return;
-
-        if (subscriptions.listeners(ticker).isEmpty()) return;
-
-        Double base = anchor.get(ticker);
-        if (base == null) {
-            anchor.put(ticker, curr);
-            return;
-        }
-
-        double change = (curr - base) / base;
-        if (Math.abs(change) >= THRESHOLD) {
-            String dir = change > 0 ? "UP" : "DOWN";
-            String pct = String.format("%.1f", Math.abs(change) * 100.0);
-            long approx = Math.round(base);
-
-
-            for (String userKey : subscriptions.listeners(ticker)) {
-                notifications.sendNotification(
-                        userKey,
-                        "Price move " + dir,
-                        ticker + " moved " + pct + "% from ~" + approx,
-                        "WARN",
-                        "STOCKS:MOVE10:" + ticker + ":" + dir
-                );
-            }
-
-            anchor.put(ticker, curr);
-        }
-    }
+//    public void onPrice(StockPrice p) {
+//        String ticker = p.getTicker().toUpperCase();
+//        double curr = p.getPrice();
+//        if (!Double.isFinite(curr) || curr <= 0) return;
+//
+//        if (subscriptions.listeners(ticker).isEmpty()) return;
+//
+//        Double base = anchor.get(ticker);
+//        if (base == null) {
+//            anchor.put(ticker, curr);
+//            return;
+//        }
+//
+//        double change = (curr - base) / base;
+//        if (Math.abs(change) >= THRESHOLD) {
+//            String dir = change > 0 ? "UP" : "DOWN";
+//            String pct = String.format("%.1f", Math.abs(change) * 100.0);
+//            long approx = Math.round(base);
+//
+//
+//            for (String userKey : subscriptions.listeners(ticker)) {
+//                notifications.sendNotification(
+//                        userKey,
+//                        "Price move " + dir,
+//                        ticker + " moved " + pct + "% from ~" + approx,
+//                        "WARN",
+//                        "STOCKS:MOVE10:" + ticker + ":" + dir
+//                );
+//            }
+//
+//            anchor.put(ticker, curr);
+//        }
+//    }
 }

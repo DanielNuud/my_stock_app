@@ -9,32 +9,35 @@ import java.util.concurrent.ConcurrentMap;
 @Component
 public class Subscription {
 
-    private final ConcurrentMap<String, Set<String>> tickerToUsers =
-            new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, Set<String>> subs = new ConcurrentHashMap<>();
 
-    public void subscribe(String userKey, String ticker) {
-        tickerToUsers
-                .computeIfAbsent(
-                        ticker.toUpperCase(),
-                        k -> ConcurrentHashMap.newKeySet()
-                )
-                .add(userKey);
+    public boolean subscribe(String userKey, String ticker) {
+        String t = ticker.toUpperCase();
+        subs.compute(t, (key, oldSet) -> {
+            if (oldSet == null) {
+                Set<String> s = ConcurrentHashMap.newKeySet();
+                s.add(userKey);
+                return s;
+            } else {
+                oldSet.add(userKey);
+                return oldSet;
+            }
+        });
+        return subs.get(t).size() == 1;
     }
 
-    public void unsubscribe(String userKey, String ticker) {
-        tickerToUsers.computeIfPresent(
-                ticker.toUpperCase(),
-                (k, set) -> {
-                    set.remove(userKey);
-                    return set.isEmpty() ? null : set;
-                }
-        );
+    public boolean unsubscribe(String userKey, String ticker) {
+        String t = ticker.toUpperCase();
+        return subs.computeIfPresent(t, (key, set) -> {
+            set.remove(userKey);
+            return set.isEmpty() ? null : set;
+        }) == null;
     }
 
-    public Set<String> listeners(String ticker) {
-        return tickerToUsers.getOrDefault(
-                ticker.toUpperCase(),
-                Set.of()
-        );
-    }
+//    public Set<String> listeners(String ticker) {
+//        return tickerToUsers.getOrDefault(
+//                ticker.toUpperCase(),
+//                Set.of()
+//        );
+//    }
 }

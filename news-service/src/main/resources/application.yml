@@ -80,7 +80,7 @@ resilience4j:
   bulkhead:
     instances:
       newsRead:
-        max-concurrent-calls: 32
+        max-concurrent-calls: 64
         max-wait-duration: 0ms
       newsFetch:
         max-concurrent-calls: 20
