@@ -51,7 +51,6 @@ public class CompanyService {
 
     @Cacheable(value = "companyByTicker", key = "#ticker.toUpperCase()", sync = true)
     @Bulkhead(name = "companyRead", type = Bulkhead.Type.SEMAPHORE)
-    @Transactional(readOnly = true, timeout = 2)
     public Company getFromDb(String ticker) {
         var key = ticker.toUpperCase().trim();
         return companyRepository.findByTickerIgnoreCase(key)

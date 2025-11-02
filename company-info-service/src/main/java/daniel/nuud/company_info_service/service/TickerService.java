@@ -71,7 +71,6 @@ public class TickerService {
 
     @Cacheable(value = "tickerSuggest", key = "#query", sync = true)
     @Bulkhead(name = "companySearch", type = Bulkhead.Type.SEMAPHORE)
-    @Transactional(readOnly = true, timeout = 2)
     public List<TickerEntity> getFromDB(String query) {
         return tickerRepository.findTop5ByTickerStartsWithIgnoreCase(query)
                 .orElseThrow(() -> new ResourceNotFoundException("Ticker with " + query + " not found"));

@@ -52,9 +52,13 @@ public class TickerController {
 
         log.info("Searching tickers with query: {}", query);
 
-        boolean refreshed = tickerService.fetchAndSaveTickers(query);
-
         var data = tickerService.getFromDB(query);
+
+        boolean refreshed = false;
+        if (data.isEmpty()) {
+            refreshed = tickerService.fetchAndSaveTickers(query);
+            data = tickerService.getFromDB(query);
+        }
 
         return ResponseEntity.ok()
                 .header("X-Data-Freshness", refreshed ? "fresh" : "stale")
