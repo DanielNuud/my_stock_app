@@ -15,8 +15,8 @@ public class FreeCurrencyClient {
 
     private final RestClient freecurrencyApiRestClient;
 
-    @CircuitBreaker(name = "freeCurrencyCB", fallbackMethod = "fallbackNull")
-    @Retry(name = "readSafe")
+//    @CircuitBreaker(name = "freeCurrencyCB", fallbackMethod = "fallbackNull")
+//    @Retry(name = "readSafe")
     public RateResponse getCurrencyRates(String base, String apiKey) {
         return freecurrencyApiRestClient.get()
                 .uri("/v1/latest?apikey={apikey}&base_currency={base_currency}", apiKey, base)

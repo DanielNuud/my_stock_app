@@ -26,18 +26,18 @@ services:
     networks:
       - stocknet
 
-  historical-db:
-    image: postgres:16
-    container_name: historical-db
-    restart: always
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: historical_db
-    ports:
-      - "5434:5432"
-    networks:
-      - stocknet
+#  historical-db:
+#    image: postgres:16
+#    container_name: historical-db
+#    restart: always
+#    environment:
+#      POSTGRES_USER: postgres
+#      POSTGRES_PASSWORD: postgres
+#      POSTGRES_DB: historical_db
+#    ports:
+#      - "5434:5432"
+#    networks:
+#      - stocknet
 
   notification-db:
     image: postgres:16
@@ -143,13 +143,8 @@ services:
       build: ./historical-analytics-service
       container_name: historical-service
       environment:
-        SPRING_DATASOURCE_URL: jdbc:postgresql://historical-db:5432/historical_db
-        SPRING_DATASOURCE_USERNAME: postgres
-        SPRING_DATASOURCE_PASSWORD: postgres
         POLYGON_API_KEY: V4_aPjfLf3uRm1v8EO3SRFvJfOM4WtDp
         SPRING_PROFILES_ACTIVE: mock
-      depends_on:
-        - historical-db
       ports:
         - "8084:8080"
       networks:
@@ -199,10 +194,10 @@ services:
     environment:
       BASE_URL: http://api-gateway:8080
       WS_BASE_URL: ws://api-gateway:8080
-      START_CONC: "100"
-      TARGET_CONC: "1500"
+      START_CONC: "0"
+      TARGET_CONC: "1600"
       RAMP_MIN: "5"
-      HOLD_MIN: "15"
+      HOLD_MIN: "20"
       RAMPDOWN_SEC: "0"
     command: >
       ./gradlew gatlingRun
@@ -277,10 +272,11 @@ services:
     container_name: wiremock
     profiles: [ "tests" ]
     image: wiremock/wiremock:latest
-    entrypoint: [ "/docker-entrypoint.sh",
-                  "--global-response-templating",
-                  "--verbose",
-                  "--disable-gzip" ]
+    command:
+      - "--global-response-templating"
+      - "--no-request-journal"
+      - "--disable-request-logging"
+      - "--verbose"
     volumes:
       - ./mocks/wiremock:/home/wiremock
     ports:

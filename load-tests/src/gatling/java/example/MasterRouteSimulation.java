@@ -103,107 +103,6 @@ public class MasterRouteSimulation extends Simulation {
         );
     }
 
-    private static final String STOMP_CONNECT =
-            "CONNECT\n" +
-                    "accept-version:1.2\n" +
-                    "host:stock-app\n" +
-                    "heart-beat:0,0\n" +
-                    "\n\u0000";
-
-    private static String stompSubscribeFrame(String subId, String ticker) {
-        return "SUBSCRIBE\n" +
-                "id:" + subId + "\n" +
-                "destination:/topic/stocks/" + ticker + "\n" +
-                "ack:auto\n" +
-                "\n\u0000";
-    }
-
-    private ChainBuilder wsSubscribeAwaitAndClose =
-                    exec(
-                    ws("WS open")
-                            .connect(WS_BASE_URL + "/ws/stocks?userKey=#{userKey}")
-                            .header("Origin", BASE_URL)
-                            .header("Cookie", "userKey=#{userKey}")
-                    )
-                    .exec(
-                            ws("STOMP CONNECT")
-                                    .sendText(STOMP_CONNECT)
-                                    .await(12)
-                                    .on(
-                                            ws.checkTextMessage("CONNECTED")
-                                                    .matching(regex("(?s)^CONNECTED\\b.*"))
-                                    )
-                    )
-                            .exec(
-                                    http("POST subscribe (REST)")
-                                            .post("/api/stocks/subscribe/#{ticker}")
-                                            .header("X-User-Key", "#{userKey}")
-                                            .check(status().in(200, 201, 204))
-                            )
-
-                            .exec(session -> session.set("subId", java.util.UUID.randomUUID().toString()))
-                    .exec(
-                            ws("STOMP SUBSCRIBE /topic/stocks/#{ticker}")
-                                    .sendText(session -> stompSubscribeFrame(session.getString("subId"), session.getString("ticker")))
-                                    .await(10)
-                                    .on(
-                                            ws.checkTextMessage("MESSAGE")
-                                                    .matching(regex("(?s)^MESSAGE\\b.*destination:/topic/stocks/#{ticker}.*"))
-                                                    .check(regex("(?s)\\n\\n(\\{.*?})\\u0000?").saveAs("stompBody"))
-                                    )
-                    )
-
-                    .exec(session -> {
-                        String body = session.getString("stompBody");
-                        String tkr  = session.getString("ticker");
-                        if (body != null) {
-                            java.util.regex.Matcher m =
-                                    java.util.regex.Pattern
-                                            .compile("\"ticker\"\\s*:\\s*\"" + java.util.regex.Pattern.quote(tkr) + "\".*?\"price\"\\s*:\\s*([0-9.]+)")
-                                            .matcher(body);
-                            if (m.find()) {
-                                session = session.set("lastClose", m.group(1));
-                            } else {
-//                                System.out.println("WARN: body doesn't contain expected ticker/price: " + body);
-                            }
-//                            System.out.println("STOMP BODY for " + tkr + " => " + body);
-                        } else {
-//                            System.out.println("WARN: no STOMP body received");
-                        }
-                        return session;
-                    })
-                    .exec(
-                            http("DELETE unsubscribe")
-                                    .delete("/api/stocks/subscribe/#{ticker}")
-                                    .check(status().in(200, 204))
-                    )
-
-                    .exec(
-                            ws("STOMP UNSUBSCRIBE /topic/stocks/#{ticker}")
-                                    .sendText(session ->
-                                            "UNSUBSCRIBE\n" +
-                                                    "id:" + session.getString("subId") + "\n\n\u0000"
-                                    )
-                    )
-
-                    .exec(
-                            ws("STOMP DISCONNECT")
-                                    .sendText("DISCONNECT\n\n\u0000")
-                    )
-                    .exec(ws("WS close").close());
-
-    int WS_PCT = Integer.parseInt(System.getProperty("WS_PCT",
-            System.getenv().getOrDefault("WS_PCT", "20")));
-
-    private ChainBuilder maybeDoWs =
-            exec(session -> {
-                boolean pick = ThreadLocalRandom.current().nextInt(100) < WS_PCT;
-                return session.set("wsPick", pick);
-            })
-                    .doIf(session -> session.getBoolean("wsPick")).then(
-                            group("WebSocket").on(wsSubscribeAwaitAndClose)
-                    );
-
     ScenarioBuilder scn = scenario("Master user journey")
             .exec(session -> session.set("userKey", "user-" + session.userId()).set("period", "one_week"))
             .exec(chooseTickerOnce)
@@ -218,10 +117,8 @@ public class MasterRouteSimulation extends Simulation {
             .pause(Duration.ofMillis(200), Duration.ofMillis(500))
 
             .group("Notifications").on(notificationsFlow())
-            .pause(Duration.ofMillis(200), Duration.ofMillis(500))
+            .pause(Duration.ofMillis(200), Duration.ofMillis(500));
 
-            .group("WebSocket").on(maybeDoWs)
-            .pause(Duration.ofMillis(300), Duration.ofMillis(800));
     {
         int START_CONC   = Integer.parseInt(System.getenv().getOrDefault("START_CONC", "10"));
         int TARGET_CONC  = Integer.parseInt(System.getenv().getOrDefault("TARGET_CONC", "300"));
@@ -229,20 +126,47 @@ public class MasterRouteSimulation extends Simulation {
         int HOLD_MIN     = Integer.parseInt(System.getenv().getOrDefault("HOLD_MIN", "20"));
         int RAMPDOWN_SEC = Integer.parseInt(System.getenv().getOrDefault("RAMPDOWN_SEC", "30"));
 
+
+//        setUp(
+//                scn.injectClosed(
+//                        rampConcurrentUsers(START_CONC).to(TARGET_CONC).during(Duration.ofMinutes(RAMP_MIN)),
+//                        constantConcurrentUsers(TARGET_CONC).during(Duration.ofMinutes(HOLD_MIN)),
+//                        rampConcurrentUsers(TARGET_CONC).to(START_CONC).during(Duration.ofSeconds(RAMPDOWN_SEC))
+//                )
+//        )
+//                .protocols(httpProtocol)
+//                .maxDuration(
+//                        Duration.ofMinutes(RAMP_MIN + HOLD_MIN)
+//                                .plusSeconds(RAMPDOWN_SEC + 60)
+//                )
+//                .assertions(
+//                        global().responseTime().percentile3().lte(3000)
+//                );
+
+
+        int BASE  = 800;
+        int SPIKE = 2500;
+
         setUp(
                 scn.injectClosed(
-                        rampConcurrentUsers(START_CONC).to(TARGET_CONC).during(Duration.ofMinutes(RAMP_MIN)),
-                        constantConcurrentUsers(TARGET_CONC).during(Duration.ofMinutes(HOLD_MIN)),
-                        rampConcurrentUsers(TARGET_CONC).to(START_CONC).during(Duration.ofSeconds(RAMPDOWN_SEC))
+                        rampConcurrentUsers(0).to(BASE).during(Duration.ofSeconds(60)),
+                        constantConcurrentUsers(BASE).during(Duration.ofSeconds(120)),
+
+                        rampConcurrentUsers(BASE).to(SPIKE).during(Duration.ofSeconds(10)),
+                        constantConcurrentUsers(SPIKE).during(Duration.ofSeconds(180)),
+
+                        rampConcurrentUsers(SPIKE).to(BASE).during(Duration.ofSeconds(10)),
+                        constantConcurrentUsers(BASE).during(Duration.ofSeconds(120))
+
                 )
         )
                 .protocols(httpProtocol)
-                .maxDuration(
-                        Duration.ofMinutes(RAMP_MIN + HOLD_MIN)
-                                .plusSeconds(RAMPDOWN_SEC + 60)
-                )
                 .assertions(
-                        global().responseTime().percentile3().lte(3000)
+                        global().failedRequests().percent().lte(1.0),
+                        global().responseTime().percentile3().lte(550),
+                        global().responseTime().percentile4().lte(900)
                 );
+
+
     }
 }

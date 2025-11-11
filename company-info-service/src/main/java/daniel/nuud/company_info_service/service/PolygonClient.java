@@ -16,8 +16,8 @@ public class PolygonClient {
 
     private final RestClient polygonRestClient;
 
-    @CircuitBreaker(name = "polygonCompanyCB", fallbackMethod = "fallbackNull")
-    @Retry(name = "readSafe")
+//    @CircuitBreaker(name = "polygonCompanyCB", fallbackMethod = "fallbackNull")
+//    @Retry(name = "readSafe")
     public ApiResponse getApiResponse(String ticker, String apiKey) {
         log.info(">>> fetchCompany called for {}", ticker);
         return polygonRestClient.get()
@@ -31,8 +31,8 @@ public class PolygonClient {
         return null;
     }
 
-    @CircuitBreaker(name = "polygonCompanyCB", fallbackMethod = "fallbackNullTicker")
-    @Retry(name = "readSafe")
+//    @CircuitBreaker(name = "polygonCompanyCB", fallbackMethod = "fallbackNullTicker")
+//    @Retry(name = "readSafe")
     public TickerApiResponse getTickerApiResponse(String query, String apiKey) {
         return polygonRestClient.get()
                 .uri("/v3/reference/tickers?market=stocks&search={query}&apiKey={apiKey}", query.toUpperCase(), apiKey)

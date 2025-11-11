@@ -28,8 +28,6 @@ public class TickerService {
     private final PolygonClient polygonClient;
     private final TickerWriter tickerWriter;
 
-    private final RestClient restClient;
-
     @Value("${polygon.api.key}")
     private String apiKey;
 
@@ -38,8 +36,8 @@ public class TickerService {
         return false;
     }
 
-    @CacheEvict(value = "tickerSuggest", allEntries = true)
-    @Bulkhead(name = "companySearch", fallbackMethod = "skipRefresh")
+//    @CacheEvict(value = "tickerSuggest", allEntries = true)
+//    @Bulkhead(name = "companySearch", fallbackMethod = "skipRefresh")
     public boolean fetchAndSaveTickers(String query) {
         TickerApiResponse response = polygonClient.getTickerApiResponse(query, apiKey);
 
@@ -69,8 +67,8 @@ public class TickerService {
                 .toList();
     }
 
-    @Cacheable(value = "tickerSuggest", key = "#query", sync = true)
-    @Bulkhead(name = "companySearch", type = Bulkhead.Type.SEMAPHORE)
+//    @Cacheable(value = "tickerSuggest", key = "#query", sync = true)
+//    @Bulkhead(name = "companySearch", type = Bulkhead.Type.SEMAPHORE)
     public List<TickerEntity> getFromDB(String query) {
         return tickerRepository.findTop5ByTickerStartsWithIgnoreCase(query)
                 .orElseThrow(() -> new ResourceNotFoundException("Ticker with " + query + " not found"));

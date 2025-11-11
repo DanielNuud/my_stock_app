@@ -17,10 +17,10 @@ public class PolygonClient {
 
     private final RestClient polygonRestClient;
 
-    @CircuitBreaker(name = "polygonAggsCB", fallbackMethod = "fallbackNull")
-    @Retry(name = "readSafe")
-    @Bulkhead(name = "polygonAggsBH", type = Bulkhead.Type.SEMAPHORE)
-    @RateLimiter(name = "polygonAggsRate")
+//    @CircuitBreaker(name = "polygonAggsCB", fallbackMethod = "fallbackNull")
+//    @Retry(name = "readSafe")
+//    @Bulkhead(name = "polygonAggsBH", type = Bulkhead.Type.SEMAPHORE)
+//    @RateLimiter(name = "polygonAggsRate")
     public ApiResponse getApiResponse(String uri) {
         log.info(uri);
         return polygonRestClient.get()

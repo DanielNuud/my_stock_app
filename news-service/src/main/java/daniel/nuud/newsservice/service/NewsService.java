@@ -30,7 +30,7 @@ public class NewsService {
     @Value("${polygon.api.key}")
     private String apiKey;
 
-    @Bulkhead(name = "newsFetch", type = Bulkhead.Type.SEMAPHORE, fallbackMethod = "skipRefresh")
+//    @Bulkhead(name = "newsFetch", type = Bulkhead.Type.SEMAPHORE, fallbackMethod = "skipRefresh")
     public boolean fetchAndSaveNews(String ticker) {
 
         ApiResponse response = polygonClient.getApiResponse(ticker, apiKey);
@@ -88,7 +88,7 @@ public class NewsService {
                 .toList();
     }
 
-    @Bulkhead(name = "newsRead", type = Bulkhead.Type.SEMAPHORE, fallbackMethod = "fallbackTop5")
+//    @Bulkhead(name = "newsRead", type = Bulkhead.Type.SEMAPHORE, fallbackMethod = "fallbackTop5")
     @Transactional(readOnly = true)
     public List<ArticleDto> getTop5NewsByTicker(String ticker) {
         return newsRepository.findTop5ByTickersOrderByPublishedUtcDesc(ticker)

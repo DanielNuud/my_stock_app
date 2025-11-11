@@ -22,7 +22,6 @@ public class NotificationService {
 
     private final NotificationRepository notificationRepository;
 
-    @Transactional
     public Long createNotification(CreateNotificationRequest createNotificationRequest) {
         log.info("Received CreateNotificationRequest {}", createNotificationRequest);
         Optional<Notification> existing = notificationRepository.findByDedupeKey(createNotificationRequest.dedupeKey());
@@ -43,7 +42,6 @@ public class NotificationService {
         return notificationRepository.save(notification).getId();
     }
 
-    @Transactional
     public List<NotificationResponse> listNotifications(String userKey, @Nullable Instant since) {
 
         List<Notification> list = (since == null)
@@ -63,7 +61,6 @@ public class NotificationService {
                 .toList();
     }
 
-    @Transactional
     public void markNotificationRead(Long id) {
         notificationRepository.findById(id).ifPresent(n -> n.setReadFlag(true));
     }

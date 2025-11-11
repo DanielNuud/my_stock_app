@@ -30,7 +30,7 @@ public class CompanyService {
         return false;
     }
 
-    @Bulkhead(name = "companyWrite", fallbackMethod = "skipRefresh")
+//    @Bulkhead(name = "companyWrite", fallbackMethod = "skipRefresh")
     public boolean tryRefreshCompany(String ticker) {
 
         if (companyRepository.existsByTickerIgnoreCase(ticker)) {
@@ -49,8 +49,8 @@ public class CompanyService {
         return true;
     }
 
-    @Cacheable(value = "companyByTicker", key = "#ticker.toUpperCase()", sync = true)
-    @Bulkhead(name = "companyRead", type = Bulkhead.Type.SEMAPHORE)
+//    @Cacheable(value = "companyByTicker", key = "#ticker.toUpperCase()", sync = true)
+//    @Bulkhead(name = "companyRead", type = Bulkhead.Type.SEMAPHORE)
     public Company getFromDb(String ticker) {
         var key = ticker.toUpperCase().trim();
         return companyRepository.findByTickerIgnoreCase(key)

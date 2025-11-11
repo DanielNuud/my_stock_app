@@ -26,8 +26,6 @@ server:
   tomcat:
     mbeanregistry:
       enabled: true
-    threads:
-      max: 100
 
 
 resilience4j:

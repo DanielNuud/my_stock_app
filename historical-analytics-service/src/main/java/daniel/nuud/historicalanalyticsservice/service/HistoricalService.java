@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class HistoricalService {
+public class  HistoricalService {
 
     private final PolygonClient polygonClient;
 
@@ -70,7 +70,6 @@ public class HistoricalService {
 
             String uri = buildAggsUri(ticker, multiplier, timespan, fromDate);
             log.info("Final URI for stock bar request: {}", uri);
-
             ApiResponse response = polygonClient.getApiResponse(uri);
 
             if (response != null && response.getResults() != null) {

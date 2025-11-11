@@ -18,9 +18,9 @@ public class RatesProvider {
     @Value("${freecurrency.api.key}")
     private String apiKey;
 
-    @Cacheable(cacheNames = "currency",
-            key = "#base.toUpperCase()",
-            unless = "#result == null || #result.isEmpty()")
+//    @Cacheable(cacheNames = "currency",
+//            key = "#base.toUpperCase()",
+//            unless = "#result == null || #result.isEmpty()")
     public Map<String, String> getRates(String base) {
 
         RateResponse resp = freeCurrencyClient.getCurrencyRates(base.toUpperCase().trim(), apiKey);

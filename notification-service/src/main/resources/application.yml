@@ -28,6 +28,8 @@ springdoc:
     operationsSorter: method
     tagsSorter: alpha
 
+
+
 management:
   endpoints:
     web:

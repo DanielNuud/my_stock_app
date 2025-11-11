@@ -54,53 +54,59 @@ management:
     tags:
       application: ${spring.application.name}
 
-resilience4j:
-  circuitbreaker:
-    instances:
-      polygonCompanyCB:
-        sliding-window-type: TIME_BASED
-        sliding-window-size: 60
-        minimum-number-of-calls: 50
-        slow-call-duration-threshold: 2s
-        slow-call-rate-threshold: 70
-        failure-rate-threshold: 50
-        wait-duration-in-open-state: 10s
-        permitted-number-of-calls-in-half-open-state: 5
-        recordExceptions:
-          - java.io.IOException
-          - org.springframework.web.client.HttpServerErrorException
-          - org.springframework.web.client.ResourceAccessException
-        ignoreExceptions:
-          - org.springframework.web.client.HttpClientErrorException
-          - java.util.concurrent.TimeoutException
-  retry:
-    instances:
-      readSafe:
-        max-attempts: 2
-        wait-duration: 150ms
-        enable-exponential-backoff: true
-        retry-exceptions:
-          - java.net.SocketTimeoutException
-          - java.io.IOException
-          - org.springframework.web.client.ResourceAccessException
-        ignore-exceptions:
-          - org.springframework.web.client.HttpClientErrorException
-          - java.util.concurrent.TimeoutException
-
-  bulkhead:
-    instances:
-      companyRead:
-        max-concurrent-calls: 128
-        max-wait-duration:
-          seconds: 0
-      companyWrite:
-        max-concurrent-calls: 30
-        max-wait-duration:
-          seconds: 0
-      companySearch:
-        max-concurrent-calls: 256
-        max-wait-duration:
-          seconds: 0
+#resilience4j:
+#  circuitbreaker:
+#    instances:
+#      polygonCompanyCB:
+#        sliding-window-type: TIME_BASED
+#        sliding-window-size: 60
+#        minimum-number-of-calls: 50
+#        slow-call-duration-threshold: 2s
+#        slow-call-rate-threshold: 70
+#        failure-rate-threshold: 50
+#        wait-duration-in-open-state: 10s
+#        permitted-number-of-calls-in-half-open-state: 5
+#        recordExceptions:
+#          - java.io.IOException
+#          - java.net.SocketTimeoutException
+#          - java.net.ConnectException
+#          - java.net.UnknownHostException
+#          - org.springframework.web.client.ResourceAccessException
+#          - org.springframework.web.client.HttpServerErrorException
+#        ignoreExceptions:
+#          - org.springframework.web.client.HttpClientErrorException.BadRequest
+#          - org.springframework.web.client.HttpClientErrorException.NotFound
+#  retry:
+#    instances:
+#      readSafe:
+#        max-attempts: 2
+#        wait-duration: 150ms
+#        enable-exponential-backoff: true
+#        retry-exceptions:
+#          - java.net.SocketTimeoutException
+#          - java.net.ConnectException
+#          - java.net.UnknownHostException
+#          - java.io.IOException
+#          - org.springframework.web.client.ResourceAccessException
+#          - org.springframework.web.client.HttpServerErrorException
+#          - org.springframework.web.client.HttpClientErrorException.TooManyRequests
+#        ignore-exceptions:
+#          - org.springframework.web.client.HttpClientErrorException.NotFound
+#
+#  bulkhead:
+#    instances:
+#      companyRead:
+#        max-concurrent-calls: 128
+#        max-wait-duration:
+#          seconds: 0
+#      companyWrite:
+#        max-concurrent-calls: 30
+#        max-wait-duration:
+#          seconds: 0
+#      companySearch:
+#        max-concurrent-calls: 256
+#        max-wait-duration:
+#          seconds: 0
 
 springdoc:
   api-docs:

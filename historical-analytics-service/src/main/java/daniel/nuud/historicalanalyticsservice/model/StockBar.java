@@ -8,12 +8,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Entity
-@Table(name = "stock_bars")
-@NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
+@NoArgsConstructor
 public class StockBar {
 
     @EmbeddedId

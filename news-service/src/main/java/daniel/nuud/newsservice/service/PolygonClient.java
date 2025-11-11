@@ -15,8 +15,8 @@ public class PolygonClient {
 
     private final RestClient polygonRestClient;
 
-    @CircuitBreaker(name = "polygonNewsCB", fallbackMethod = "fallbackEmpty")
-    @Retry(name = "readSafe")
+//    @CircuitBreaker(name = "polygonNewsCB", fallbackMethod = "fallbackEmpty")
+//    @Retry(name = "readSafe")
     public ApiResponse getApiResponse(String ticker, String apiKey) {
         return polygonRestClient.get()
                 .uri("/v2/reference/news?ticker={ticker}&order=asc&limit=10&sort=published_utc&apiKey={apiKey}",

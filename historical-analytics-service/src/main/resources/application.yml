@@ -8,6 +8,10 @@ polygon:
 
 server:
   tomcat:
+    threads:
+      max: 20000
+    max-connections: 20000
+    accept-count: 2000
     mbeanregistry:
       enabled: true
   port: 8080
